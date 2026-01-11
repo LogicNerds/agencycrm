@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agency - Job Search Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-main: #f8f9fa;
+            --bg-card: #ffffff;
+            --bg-hover: #f0f1f2;
+            --border: #e1e4e8;
+            --text-primary: #24292f;
+            --text-secondary: #57606a;
+            --text-muted: #6e7781;
+            --green: #1a7f37;
+            --green-bg: #dafbe1;
+            --yellow: #bf8700;
+            --yellow-bg: #fff8c5;
+            --red: #cf222e;
+            --red-bg: #ffebe9;
+            --blue: #0969da;
+            --blue-bg: #ddf4ff;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Login Screen */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: var(--shadow);
+        }
+
+        .login-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .error-message {
+            background: var(--red-bg);
+            color: var(--red);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .app-container {
+            display: none;
+        }
+
+        .app-container.active {
+            display: block;
+        }
+
+        .user-menu {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-email {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 0;
+            margin-bottom: 24px;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            gap: 48px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            padding: 16px 0;
+            color: var(--text-primary);
+        }
+
+        nav {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            flex: 1;
+        }
+
+        .nav-tab {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 20px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        .nav-tab.active {
+            color: var(--blue);
+            border-bottom-color: var(--blue);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* KPI Cards */
+        .kpi-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            flex: 1;
+            background: var(--green-bg);
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .kpi-card.attention {
+            background: var(--red-bg);
+        }
+
+        .kpi-card.warning {
+            background: var(--yellow-bg);
+        }
+
+        .kpi-card.info {
+            background: var(--blue-bg);
+        }
+
+        .kpi-number {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-primary);
+        }
+
+        .kpi-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        .kpi-goal {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .kpi-progress {
+            height: 3px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .kpi-progress-fill {
+            height: 100%;
+            background: var(--text-primary);
+            transition: width 0.3s;
+        }
+
+        /* Two Column Layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        /* Role Cards */
+        .role-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .role-card:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-1px);
+        }
+
+        .role-card.status-red {
+            border-left-color: var(--red);
+        }
+
+        .role-card.status-yellow {
+            border-left-color: var(--yellow);
+        }
+
+        .role-card.status-green {
+            border-left-color: var(--green);
+        }
+
+        .role-card.status-blue {
+            border-left-color: var(--blue);
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .role-company {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.red { background: var(--red); }
+        .status-dot.yellow { background: var(--yellow); }
+        .status-dot.green { background: var(--green); }
+
+        .role-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .role-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+        }
+
+        .role-badge.waiting { background: var(--yellow-bg); color: var(--yellow); }
+        .role-badge.interviewing { background: var(--green-bg); color: var(--green); }
+        .role-badge.applied { background: var(--bg-hover); color: var(--text-secondary); }
+        .role-badge.conversation { background: var(--blue-bg); color: var(--blue); }
+
+        .role-action {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: var(--green-bg);
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .role-action.warning {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+
+        .role-action.info {
+            background: var(--yellow-bg);
+            color: var(--text-primary);
+        }
+
+        .action-icon {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-secondary);
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .btn {
+            background: var(--blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn:hover {
+            background: #0550ae;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        .btn-danger {
+            background: var(--red);
+        }
+
+        .btn-danger:hover {
+            background: #a40e26;
+        }
+
+        .btn-success {
+            background: var(--green);
+        }
+
+        .btn-success:hover {
+            background: #116329;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-primary);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px var(--blue-bg);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .close-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        /* Stats Grid */
+        .stats-section {
+            margin-bottom: 32px;
+        }
+
+        .stats-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px 16px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stat-goal {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-progress {
+            flex: 1;
+            height: 3px;
+            background: var(--bg-hover);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .stat-progress-fill {
+            height: 100%;
+            background: var(--green);
+            transition: width 0.3s;
+        }
+
+        .stat-progress-fill.complete {
+            background: var(--green);
+        }
+
+        /* Timeline */
+        .timeline {
+            margin-top: 24px;
+        }
+
+        .timeline-item {
+            border-left: 2px solid var(--border);
+            padding-left: 16px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 0;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--blue);
+            border: 2px solid white;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .timeline-type {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--blue);
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .timeline-notes {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .contact-info {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            font-size: 13px;
+        }
+
+        .contact-item {
+            color: var(--text-secondary);
+        }
+
+        .contact-item a {
+            color: var(--blue);
+            text-decoration: none;
+        }
+
+        .contact-item a:hover {
+            text-decoration: underline;
+        }
+
+        .warning-banner {
+            background: var(--yellow-bg);
+            border: 1px solid var(--yellow);
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        /* Settings */
+        .settings-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .settings-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .settings-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .goal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-row {
+                flex-direction: column;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-box">
+            <h1 class="login-title">Agency</h1>
+            <p class="login-subtitle">Your Job Search Management System</p>
+            
+            <div id="loginError" class="error-message" style="display:none;"></div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required placeholder="your@email.com" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn" style="flex: 1;">Sign In</button>
+                </div>
+            </form>
+            
+            <div class="divider">or</div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="handleGoogleLogin()" style="width: 100%;">
+                    Sign in with Google
+                </button>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-secondary);">
+                Don't have an account? 
+                <a href="#" onclick="showSignup(); return false;" style="color: var(--blue); text-decoration: none;">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Container -->
+    <div id="appContainer" class="app-container">
+        <header>
+            <div class="header-container">
+                <div class="logo">Agency</div>
+                <nav>
+                    <button class="nav-tab active" onclick="showPage('dashboard')">Dashboard</button>
+                    <button class="nav-tab" onclick="showPage('roles')">Roles</button>
+                    <button class="nav-tab" onclick="showPage('weekly')">Weekly Stats</button>
+                    <button class="nav-tab" onclick="showPage('settings')">Settings</button>
+                </nav>
+                <div class="user-menu">
+                    <span class="user-email" id="userEmail"></span>
+                    <button class="btn btn-secondary" onclick="handleLogout()">Sign Out</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Dashboard -->
+            <div id="dashboard" class="page active">
+                <div class="kpi-row" id="kpiCards"></div>
+
+                <div id="upcomingInterviewsSection" style="display:none; margin-bottom: 32px;">
+                    <div class="section-header">Upcoming Interviews</div>
+                    <div id="upcomingInterviews"></div>
+                </div>
+
+                <div class="two-col">
+                    <div>
+                        <div class="section-header">Needs Attention</div>
+                        <div id="needsAttention"></div>
+                    </div>
+                    <div>
+                        <div class="section-header">Active Roles</div>
+                        <div id="activeRoles"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Roles -->
+            <div id="roles" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">All Roles</h1>
+                    <button class="btn" onclick="openNewRoleModal()">+ New Role</button>
+                </div>
+
+                <div class="filters">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search company or title..." onkeyup="filterRoles()">
+                    <select id="phaseFilter" onchange="filterRoles()">
+                        <option value="">All Phases</option>
+                        <option value="INTERESTED">Interested</option>
+                        <option value="APPLIED">Applied</option>
+                        <option value="IN_CONVERSATION">In Conversation</option>
+                        <option value="INTERVIEWING">Interviewing</option>
+                        <option value="WAITING">Waiting</option>
+                        <option value="CLOSED_NO">Closed - No</option>
+                        <option value="CLOSED_OFFER">Closed - Offer</option>
+                    </select>
+                    <select id="sourceFilter" onchange="filterRoles()">
+                        <option value="">All Sources</option>
+                        <option value="REFERRAL">Referral</option>
+                        <option value="RECRUITER">Recruiter</option>
+                        <option value="COLD">Cold Apply</option>
+                        <option value="INBOUND">Inbound</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+
+                <div id="rolesList"></div>
+            </div>
+
+            <!-- Weekly Stats -->
+            <div id="weekly" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Weekly Stats</h1>
+                    <span style="font-size: 13px; color: var(--text-secondary);">Last 7 Days</span>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stats-section-title">Your Activity</div>
+                    <div class="stats-grid" id="weeklyActivityStats"></div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stats-section-title">Pipeline Health</div>
+                    <div class="stats-grid" id="weeklyPipelineStats"></div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stats-section-title">Phase Distribution</div>
+                    <div class="stats-grid" id="phaseDistribution"></div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stats-section-title">Activity Breakdown</div>
+                    <div id="effortBreakdown"></div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div id="settings" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Settings</h1>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-title">Goal Setting</div>
+                    <div class="settings-description">Set your weekly goals to track progress. Leave blank to hide goal tracking.</div>
+                    <div class="goal-grid">
+                        <div class="form-group">
+                            <label>Active Roles Goal</label>
+                            <input type="number" id="goalActiveRoles" min="0" placeholder="e.g., 10">
+                        </div>
+                        <div class="form-group">
+                            <label>Weekly Applications Goal</label>
+                            <input type="number" id="goalWeeklyApplications" min="0" placeholder="e.g., 5">
+                        </div>
+                        <div class="form-group">
+                            <label>Weekly Interactions Goal</label>
+                            <input type="number" id="goalWeeklyInteractions" min="0" placeholder="e.g., 10">
+                        </div>
+                        <div class="form-group">
+                            <label>Weekly Interviews Goal</label>
+                            <input type="number" id="goalWeeklyInterviews" min="0" placeholder="e.g., 2">
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="saveGoals()">Save Goals</button>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-title">Data Management</div>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" onclick="exportData()">Export Data (JSON)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="newRoleModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title">New Role</h3>
+                <button class="close-btn" onclick="closeModal('newRoleModal')">&times;</button>
+            </div>
+            <form onsubmit="saveNewRole(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Company *</label>
+                        <input type="text" id="newCompany" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" id="newTitle" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Source *</label>
+                        <select id="newSource" required>
+                            <option value="REFERRAL">Referral</option>
+                            <option value="RECRUITER">Recruiter</option>
+                            <option value="COLD">Cold Apply</option>
+                            <option value="INBOUND">Inbound</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Phase</label>
+                        <select id="newPhase">
+                            <option value="INTERESTED" selected>Interested</option>
+                            <option value="APPLIED">Applied</option>
+                            <option value="IN_CONVERSATION">In Conversation</option>
+                            <option value="INTERVIEWING">Interviewing</option>
+                            <option value="WAITING">Waiting</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Primary Contact</label>
+                    <input type="text" id="newContact" placeholder="e.g., Jane Smith, Hiring Manager">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="newEmail" placeholder="contact@company.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="newPhone" placeholder="(555) 123-4567">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Next Action</label>
+                        <input type="text" id="newNextAction" placeholder="e.g., Send follow-up email">
+                    </div>
+                    <div class="form-group">
+                        <label>Follow-up Date</label>
+                        <input type="date" id="newFollowUpDate">
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">Create Role</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newRoleModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="roleDetailModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="roleDetailTitle"></h3>
+                <button class="close-btn" onclick="closeModal('roleDetailModal')">&times;</button>
+            </div>
+            <div id="roleDetailContent"></div>
+        </div>
+    </div>
+
+    <div id="interactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Interaction</h3>
+                <button class="close-btn" onclick="closeModal('interactionModal')">&times;</button>
+            </div>
+            <form onsubmit="saveInteraction(event)">
+                <div class="form-group">
+                    <label>Type *</label>
+                    <select id="interactionType" required>
+                        <option value="CONVERSATION">Conversation</option>
+                        <option value="INTRO_REQUEST">Intro Request</option>
+                        <option value="RESUME_SENT">Resume Sent</option>
+                        <option value="FOLLOW_UP">Follow Up</option>
+                        <option value="INTERVIEW">Interview</option>
+                        <option value="REJECTION">Rejection</option>
+                        <option value="GHOSTED">Ghosted</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="form-group" id="interviewDateGroup" style="display:none;">
+                    <label>Interview Date & Time</label>
+                    <input type="datetime-local" id="interviewDate">
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="interactionNotes" placeholder="Add any relevant details..."></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">Save Interaction</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('interactionModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="phaseChangeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Update Role Phase?</h3>
+                <button class="close-btn" onclick="closeModal('phaseChangeModal')">&times;</button>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 13px;">Would you like to move this role to a new phase based on this interaction?</p>
+            <div class="form-group">
+                <label>Select New Phase</label>
+                <select id="newPhaseSelect">
+                    <option value="INTERESTED">Interested</option>
+                    <option value="APPLIED">Applied</option>
+                    <option value="IN_CONVERSATION">In Conversation</option>
+                    <option value="INTERVIEWING">Interviewing</option>
+                    <option value="WAITING">Waiting</option>
+                    <option value="CLOSED_NO">Closed - No</option>
+                    <option value="CLOSED_OFFER">Closed - Offer</option>
+                </select>
+            </div>
+            <div class="action-buttons">
+                <button class="btn" onclick="updatePhaseFromModal()">Update Phase</button>
+                <button class="btn btn-secondary" onclick="closeModal('phaseChangeModal')">Keep Current Phase</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // ===========================
+        // FIREBASE CONFIGURATION
+        // ===========================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDx_aXkAhFMaxIV0uRyil32qa9zbeI0Ugs",
+            authDomain: "agency-by-logic-nerds.firebaseapp.com",
+            projectId: "agency-by-logic-nerds",
+            storageBucket: "agency-by-logic-nerds.firebasestorage.app",
+            messagingSenderId: "605357652082",
+            appId: "1:605357652082:web:fd6481a8836fe096612aeb"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Global state
+        let currentUser = null;
+        let DB = {
+            roles: [],
+            interactions: [],
+            goals: {
+                activeRoles: null,
+                weeklyApplications: null,
+                weeklyInteractions: null,
+                weeklyInterviews: null
+            }
+        };
+        let currentRoleId = null;
+
+        // ===========================
+        // AUTHENTICATION
+        // ===========================
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('appContainer').classList.add('active');
+                document.getElementById('userEmail').textContent = user.email;
+                loadAllData();
+            } else {
+                currentUser = null;
+                document.getElementById('loginContainer').style.display = 'flex';
+                document.getElementById('appContainer').classList.remove('active');
+            }
+        });
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .catch(error => {
+                    document.getElementById('loginError').textContent = error.message;
+                    document.getElementById('loginError').style.display = 'block';
+                });
+        }
+
+        function handleGoogleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .catch(error => {
+                    document.getElementById('loginError').textContent = error.message;
+                    document.getElementById('loginError').style.display = 'block';
+                });
+        }
+
+        function showSignup() {
+            const email = prompt('Enter your email address:');
+            if (!email) return;
+            
+            const password = prompt('Create a password (min 6 characters):');
+            if (!password) return;
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(() => {
+                    alert('Account created successfully!');
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to sign out?')) {
+                auth.signOut();
+            }
+        }
+
+        // ===========================
+        // FIRESTORE DATA OPERATIONS
+        // ===========================
+        async function loadAllData() {
+            if (!currentUser) return;
+
+            try {
+                // Load roles
+                const rolesSnapshot = await db.collection('users').doc(currentUser.uid)
+                    .collection('roles').get();
+                DB.roles = rolesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Load interactions
+                const interactionsSnapshot = await db.collection('users').doc(currentUser.uid)
+                    .collection('interactions').get();
+                DB.interactions = interactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Load goals
+                const goalsDoc = await db.collection('users').doc(currentUser.uid)
+                    .collection('settings').doc('goals').get();
+                if (goalsDoc.exists) {
+                    DB.goals = goalsDoc.data();
+                }
+
+                renderDashboard();
+                loadGoals();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        async function saveRole(role) {
+            if (!currentUser) return;
+            
+            const roleData = { ...role };
+            delete roleData.id;
+            
+            try {
+                if (role.id && role.id.startsWith('role')) {
+                    const docRef = await db.collection('users').doc(currentUser.uid)
+                        .collection('roles').add(roleData);
+                    role.id = docRef.id;
+                } else {
+                    await db.collection('users').doc(currentUser.uid)
+                        .collection('roles').doc(role.id).set(roleData);
+                }
+            } catch (error) {
+                console.error('Error saving role:', error);
+                alert('Error saving role. Please try again.');
+            }
+        }
+
+        async function saveInteractionToDB(interaction) {
+            if (!currentUser) return;
+            
+            const interactionData = { ...interaction };
+            delete interactionData.id;
+            
+            try {
+                if (interaction.id && interaction.id.startsWith('int')) {
+                    const docRef = await db.collection('users').doc(currentUser.uid)
+                        .collection('interactions').add(interactionData);
+                    interaction.id = docRef.id;
+                }
+            } catch (error) {
+                console.error('Error saving interaction:', error);
+                alert('Error saving interaction. Please try again.');
+            }
+        }
+
+        async function saveGoalsToDB() {
+            if (!currentUser) return;
+            
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('settings').doc('goals').set(DB.goals);
+            } catch (error) {
+                console.error('Error saving goals:', error);
+                alert('Error saving goals. Please try again.');
+            }
+        }
+
+        // ===========================
+        // UI HELPER FUNCTIONS
+        // ===========================
+        
+        function getUpcomingInterviews() {
+            const now = new Date();
+            const upcoming = [];
+            
+            DB.interactions.forEach(interaction => {
+                if (interaction.type === 'INTERVIEW' && interaction.interviewDate) {
+                    const interviewDate = new Date(interaction.interviewDate);
+                    if (interviewDate >= now) {
+                        const role = DB.roles.find(r => r.id === interaction.roleId);
+                        if (role && !role.phase.startsWith('CLOSED')) {
+                            upcoming.push({
+                                ...interaction,
+                                role: role,
+                                date: interviewDate
+                            });
+                        }
+                    }
+                }
+            });
+            
+            return upcoming.sort((a, b) => a.date - b.date);
+        }
+
+        function getStaleStatus(role) {
+            const roleInteractions = DB.interactions.filter(i => i.roleId === role.id);
+            const lastActivityAt = roleInteractions.length > 0
+                ? new Date(Math.max(...roleInteractions.map(i => new Date(i.occurredAt))))
+                : new Date(role.createdAt);
+
+            const daysSinceActivity = (new Date() - lastActivityAt) / (1000 * 60 * 60 * 24);
+
+            if (daysSinceActivity > 14) return 'RED';
+            if (!role.nextAction && role.phase !== 'WAITING') return 'YELLOW';
+            return 'GREEN';
+        }
+
+        function getLastActivityDate(role) {
+            const roleInteractions = DB.interactions.filter(i => i.roleId === role.id);
+            if (roleInteractions.length === 0) return new Date(role.createdAt);
+            return new Date(Math.max(...roleInteractions.map(i => new Date(i.occurredAt))));
+        }
+
+        function formatPhase(phase) {
+            const map = {
+                'INTERESTED': 'Interested',
+                'APPLIED': 'Applied',
+                'IN_CONVERSATION': 'In Conversation',
+                'INTERVIEWING': 'Interviewing',
+                'WAITING': 'Waiting',
+                'CLOSED_NO': 'Closed - No',
+                'CLOSED_OFFER': 'Closed - Offer'
+            };
+            return map[phase] || phase;
+        }
+
+        function formatSource(source) {
+            const map = {
+                'REFERRAL': 'Referral',
+                'RECRUITER': 'Recruiter',
+                'COLD': 'Cold',
+                'INBOUND': 'Inbound',
+                'OTHER': 'Other'
+            };
+            return map[source] || source;
+        }
+
+        function formatInteractionType(type) {
+            const map = {
+                'CONVERSATION': 'Conversation',
+                'INTRO_REQUEST': 'Intro Request',
+                'RESUME_SENT': 'Resume Sent',
+                'FOLLOW_UP': 'Follow Up',
+                'INTERVIEW': 'Interview',
+                'REJECTION': 'Rejection',
+                'GHOSTED': 'Ghosted',
+                'OTHER': 'Other'
+            };
+            return map[type] || type;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString();
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleString();
+        }
+
+        function formatRelativeTime(date) {
+            const now = new Date();
+            const days = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+            if (days === 0) return 'today';
+            if (days === 1) return 'yesterday';
+            return `${days} days ago`;
+        }
+
+        // Show/hide interview date field
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.getElementById('interactionType');
+            if (typeSelect) {
+                typeSelect.addEventListener('change', function() {
+                    const dateGroup = document.getElementById('interviewDateGroup');
+                    if (this.value === 'INTERVIEW') {
+                        dateGroup.style.display = 'block';
+                    } else {
+                        dateGroup.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        // ===========================
+        // RENDER FUNCTIONS
+        // ===========================
+        
+        function renderRoleCard(role) {
+            const staleStatus = getStaleStatus(role);
+            const lastActivity = getLastActivityDate(role);
+            
+            const hasUpcomingInterview = DB.interactions.some(i => 
+                i.roleId === role.id && 
+                i.type === 'INTERVIEW' && 
+                i.interviewDate && 
+                new Date(i.interviewDate) > new Date()
+            );
+
+            const statusClass = hasUpcomingInterview ? 'status-blue' : `status-${staleStatus.toLowerCase()}`;
+            const dotClass = staleStatus.toLowerCase();
+
+            let badgeClass = '';
+            let badgeLabel = formatPhase(role.phase);
+            
+            if (role.phase === 'WAITING') badgeClass = 'waiting';
+            else if (role.phase === 'INTERVIEWING') badgeClass = 'interviewing';
+            else if (role.phase === 'APPLIED') badgeClass = 'applied';
+            else if (role.phase === 'IN_CONVERSATION') badgeClass = 'conversation';
+
+            let actionHTML = '';
+            if (role.nextAction) {
+                actionHTML = `
+                    <div class="role-action">
+                        <span class="action-icon"></span>
+                        ${role.nextAction}
+                    </div>
+                `;
+            } else if (role.phase !== 'WAITING') {
+                actionHTML = `
+                    <div class="role-action warning">
+                        <span class="action-icon"></span>
+                        No next action set
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="role-card ${statusClass}" onclick="openRoleDetail('${role.id}')">
+                    <div class="role-header">
+                        <div class="role-company">
+                            <span class="status-dot ${dotClass}"></span>
+                            ${role.company}
+                        </div>
+                        <span class="role-badge ${badgeClass}">${badgeLabel}</span>
+                    </div>
+                    <div class="role-title">${role.title}</div>
+                    <div class="role-meta">${formatSource(role.source)} · Last Contact: ${formatRelativeTime(lastActivity)}</div>
+                    ${actionHTML}
+                </div>
+            `;
+        }
+
+        function renderDashboard() {
+            const activeRoles = DB.roles.filter(r => !r.phase.startsWith('CLOSED'));
+            const staleRed = activeRoles.filter(r => getStaleStatus(r) === 'RED');
+            const noAction = activeRoles.filter(r => !r.nextAction && r.phase !== 'WAITING');
+            const upcomingInterviews = getUpcomingInterviews();
+
+            // KPI Cards
+            let kpiHTML = '';
+            kpiHTML += renderKPICard(activeRoles.length, 'Active Roles', 'green', DB.goals.activeRoles);
+            kpiHTML += renderKPICard(staleRed.length, 'Stale Roles', 'attention');
+            kpiHTML += renderKPICard(noAction.length, 'Needs Action', 'warning');
+            
+            document.getElementById('kpiCards').innerHTML = kpiHTML;
+
+            // Upcoming interviews
+            if (upcomingInterviews.length > 0) {
+                document.getElementById('upcomingInterviewsSection').style.display = 'block';
+                document.getElementById('upcomingInterviews').innerHTML = upcomingInterviews.map(interview => `
+                    <div class="role-card status-blue" onclick="openRoleDetail('${interview.roleId}')">
+                        <div class="role-header">
+                            <div class="role-company">
+                                <span class="status-dot green"></span>
+                                ${interview.role.company}
+                            </div>
+                            <span class="role-badge interviewing">Interview</span>
+                        </div>
+                        <div class="role-title">${interview.role.title}</div>
+                        <div class="role-action info">
+                            📅 ${formatDateTime(interview.interviewDate)}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('upcomingInterviewsSection').style.display = 'none';
+            }
+
+            // Needs attention
+            const needsAttention = activeRoles
+                .filter(r => getStaleStatus(r) === 'RED' || getStaleStatus(r) === 'YELLOW')
+                .sort((a, b) => {
+                    const aStale = getStaleStatus(a);
+                    const bStale = getStaleStatus(b);
+                    if (aStale === bStale) return getLastActivityDate(a) - getLastActivityDate(b);
+                    return aStale === 'RED' ? -1 : 1;
+                });
+
+            document.getElementById('needsAttention').innerHTML = needsAttention.length > 0
+                ? needsAttention.map(r => renderRoleCard(r)).join('')
+                : '<div class="empty-state">All roles are up to date</div>';
+
+            // Active roles
+            const greenRoles = activeRoles.filter(r => getStaleStatus(r) === 'GREEN');
+            document.getElementById('activeRoles').innerHTML = greenRoles.length > 0
+                ? greenRoles.map(r => renderRoleCard(r)).join('')
+                : '<div class="empty-state">No active roles</div>';
+        }
+
+        function renderKPICard(value, label, type = 'info', goal = null) {
+            let goalHTML = '';
+            if (goal) {
+                const percentage = Math.min((value / goal) * 100, 100);
+                goalHTML = `
+                    <div class="kpi-goal">
+                        ${value} / ${goal}
+                        <div class="kpi-progress">
+                            <div class="kpi-progress-fill" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="kpi-card ${type}">
+                    <div class="kpi-number">${value}</div>
+                    <div>
+                        <div class="kpi-label">${label}</div>
+                        ${goalHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterRoles() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const phaseFilter = document.getElementById('phaseFilter').value;
+            const sourceFilter = document.getElementById('sourceFilter').value;
+
+            let filtered = DB.roles.filter(r => {
+                const matchesSearch = r.company.toLowerCase().includes(search) || r.title.toLowerCase().includes(search);
+                const matchesPhase = !phaseFilter || r.phase === phaseFilter;
+                const matchesSource = !sourceFilter || r.source === sourceFilter;
+                return matchesSearch && matchesPhase && matchesSource;
+            });
+
+            filtered.sort((a, b) => getLastActivityDate(b) - getLastActivityDate(a));
+
+            document.getElementById('rolesList').innerHTML = filtered.length > 0
+                ? filtered.map(r => renderRoleCard(r)).join('')
+                : '<div class="empty-state">No roles match your filters</div>';
+        }
+
+        function renderWeeklyReport() {
+            const now = new Date();
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+            const weeklyInteractions = DB.interactions.filter(i => new Date(i.occurredAt) >= weekAgo);
+            const weeklyApplications = weeklyInteractions.filter(i => i.type === 'RESUME_SENT').length;
+            const weeklyInterviews = weeklyInteractions.filter(i => i.type === 'INTERVIEW').length;
+            const activeRoles = DB.roles.filter(r => !r.phase.startsWith('CLOSED')).length;
+            const touchedRoles = new Set(weeklyInteractions.map(i => i.roleId)).size;
+            const newRoles = DB.roles.filter(r => new Date(r.createdAt) >= weekAgo).length;
+            const staleRoles = DB.roles.filter(r => {
+                const lastActivity = getLastActivityDate(r);
+                return (now - lastActivity) / (1000 * 60 * 60 * 24) > 14;
+            }).length;
+
+            // Activity
+            let activityHTML = '';
+            activityHTML += renderStatCard('Total Interactions', weeklyInteractions.length, DB.goals.weeklyInteractions);
+            activityHTML += renderStatCard('Applications Sent', weeklyApplications, DB.goals.weeklyApplications);
+            activityHTML += renderStatCard('Interviews', weeklyInterviews, DB.goals.weeklyInterviews);
+            document.getElementById('weeklyActivityStats').innerHTML = activityHTML;
+
+            // Pipeline
+            let pipelineHTML = '';
+            pipelineHTML += renderStatCard('Active Roles', activeRoles, DB.goals.activeRoles);
+            pipelineHTML += renderStatCard('New Roles Added', newRoles);
+            pipelineHTML += renderStatCard('Roles Touched', touchedRoles);
+            pipelineHTML += renderStatCard('Stale Roles', staleRoles);
+            document.getElementById('weeklyPipelineStats').innerHTML = pipelineHTML;
+
+            // Phase distribution
+            const phaseCounts = {};
+            DB.roles.forEach(r => {
+                phaseCounts[r.phase] = (phaseCounts[r.phase] || 0) + 1;
+            });
+
+            document.getElementById('phaseDistribution').innerHTML = Object.entries(phaseCounts)
+                .map(([phase, count]) => renderStatCard(formatPhase(phase), count))
+                .join('');
+
+            // Activity breakdown
+            const typeCounts = {};
+            weeklyInteractions.forEach(i => {
+                typeCounts[i.type] = (typeCounts[i.type] || 0) + 1;
+            });
+
+            const topType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0];
+
+            document.getElementById('effortBreakdown').innerHTML = topType
+                ? renderStatCard(formatInteractionType(topType[0]), topType[1])
+                : '<div class="empty-state">No interactions this week</div>';
+        }
+
+        function renderStatCard(label, value, goal = null) {
+            let goalHTML = '';
+            if (goal) {
+                const percentage = Math.min((value / goal) * 100, 100);
+                goalHTML = `
+                    <div class="stat-goal">
+                        <span>${value} / ${goal}</span>
+                        <div class="stat-progress">
+                            <div class="stat-progress-fill ${value >= goal ? 'complete' : ''}" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="stat-card">
+                    <div class="stat-label">${label}</div>
+                    <div class="stat-value">${value}</div>
+                    ${goalHTML}
+                </div>
+            `;
+        }
+
+        // ===========================
+        // USER ACTIONS
+        // ===========================
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            event.target.classList.add('active');
+
+            if (pageId === 'dashboard') renderDashboard();
+            if (pageId === 'roles') filterRoles();
+            if (pageId === 'weekly') renderWeeklyReport();
+            if (pageId === 'settings') loadGoals();
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openNewRoleModal() {
+            document.getElementById('newCompany').value = '';
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newSource').value = 'REFERRAL';
+            document.getElementById('newPhase').value = 'INTERESTED';
+            document.getElementById('newContact').value = '';
+            document.getElementById('newEmail').value = '';
+            document.getElementById('newPhone').value = '';
+            document.getElementById('newNextAction').value = '';
+            document.getElementById('newFollowUpDate').value = '';
+            openModal('newRoleModal');
+        }
+
+        async function saveNewRole(e) {
+            e.preventDefault();
+
+            const role = {
+                id: 'role' + Date.now(),
+                company: document.getElementById('newCompany').value,
+                title: document.getElementById('newTitle').value,
+                source: document.getElementById('newSource').value,
+                phase: document.getElementById('newPhase').value,
+                primaryContact: document.getElementById('newContact').value,
+                email: document.getElementById('newEmail').value,
+                phone: document.getElementById('newPhone').value,
+                nextAction: document.getElementById('newNextAction').value,
+                followUpDate: document.getElementById('newFollowUpDate').value,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            DB.roles.push(role);
+            await saveRole(role);
+            closeModal('newRoleModal');
+            renderDashboard();
+            filterRoles();
+        }
+
+        function openRoleDetail(roleId) {
+            const role = DB.roles.find(r => r.id === roleId);
+            if (!role) return;
+
+            currentRoleId = roleId;
+            const roleInteractions = DB.interactions.filter(i => i.roleId === roleId)
+                .sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt));
+
+            const needsWarning = !role.nextAction && role.phase !== 'WAITING';
+
+            document.getElementById('roleDetailTitle').textContent = `${role.title} at ${role.company}`;
+            document.getElementById('roleDetailContent').innerHTML = `
+                ${needsWarning ? '<div class="warning-banner">⚠️ Action Required: This role needs either a next action or should be marked as WAITING</div>' : ''}
+                
+                <div style="margin-bottom: 24px;">
+                    <div class="form-group">
+                        <label>Phase</label>
+                        <select id="editPhase" onchange="updateRolePhase('${roleId}', this.value)">
+                            ${['INTERESTED', 'APPLIED', 'IN_CONVERSATION', 'INTERVIEWING', 'WAITING', 'CLOSED_NO', 'CLOSED_OFFER']
+                                .map(p => `<option value="${p}" ${role.phase === p ? 'selected' : ''}>${formatPhase(p)}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Primary Contact</label>
+                        <input type="text" id="editContact" value="${role.primaryContact || ''}" onchange="updateRoleField('${roleId}', 'primaryContact', this.value)">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="editEmail" value="${role.email || ''}" onchange="updateRoleField('${roleId}', 'email', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="tel" id="editPhone" value="${role.phone || ''}" onchange="updateRoleField('${roleId}', 'phone', this.value)">
+                        </div>
+                    </div>
+                    ${(role.email || role.phone) ? `
+                        <div class="contact-info">
+                            ${role.email ? `<div class="contact-item">📧 <a href="mailto:${role.email}">${role.email}</a></div>` : ''}
+                            ${role.phone ? `<div class="contact-item">📞 <a href="tel:${role.phone}">${role.phone}</a></div>` : ''}
+                        </div>
+                    ` : ''}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Next Action</label>
+                            <input type="text" id="editNextAction" value="${role.nextAction || ''}" onchange="updateRoleField('${roleId}', 'nextAction', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>Follow-up Date</label>
+                            <input type="date" id="editFollowUpDate" value="${role.followUpDate || ''}" onchange="updateRoleField('${roleId}', 'followUpDate', this.value)">
+                        </div>
+                    </div>
+                    <div style="color: var(--text-secondary); font-size: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+                        <strong>Source:</strong> ${formatSource(role.source)} · 
+                        <strong>Created:</strong> ${formatDate(role.createdAt)}
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn" onclick="openInteractionModal('${roleId}')">+ Add Interaction</button>
+                    <button class="btn btn-danger" onclick="closeRole('${roleId}', 'CLOSED_NO')">Close - No</button>
+                    <button class="btn btn-success" onclick="closeRole('${roleId}', 'CLOSED_OFFER')">Close - Offer</button>
+                </div>
+
+                <div class="timeline">
+                    <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Interaction History</h4>
+                    ${roleInteractions.length > 0 ? roleInteractions.map(i => `
+                        <div class="timeline-item">
+                            <div class="timeline-header">
+                                <span class="timeline-type">${formatInteractionType(i.type)}</span>
+                                <span class="timeline-date">${i.interviewDate && i.type === 'INTERVIEW' ? formatDateTime(i.interviewDate) : formatDate(i.occurredAt)}</span>
+                            </div>
+                            ${i.notes ? `<div class="timeline-notes">${i.notes}</div>` : '<div class="timeline-notes" style="opacity: 0.6;">No notes</div>'}
+                        </div>
+                    `).join('') : '<div style="color: var(--text-secondary); font-style: italic; padding: 16px; text-align: center; background: var(--bg-hover); border-radius: 6px;">No interactions yet</div>'}
+                </div>
+            `;
+
+            openModal('roleDetailModal');
+        }
+
+        async function updateRolePhase(roleId, newPhase) {
+            const role = DB.roles.find(r => r.id === roleId);
+            if (role) {
+                role.phase = newPhase;
+                role.updatedAt = new Date().toISOString();
+                await saveRole(role);
+                renderDashboard();
+                filterRoles();
+            }
+        }
+
+        async function updateRoleField(roleId, field, value) {
+            const role = DB.roles.find(r => r.id === roleId);
+            if (role) {
+                role[field] = value;
+                role.updatedAt = new Date().toISOString();
+                await saveRole(role);
+                renderDashboard();
+                filterRoles();
+            }
+        }
+
+        async function closeRole(roleId, closedPhase) {
+            const role = DB.roles.find(r => r.id === roleId);
+            if (role && confirm(`Mark "${role.title} at ${role.company}" as ${formatPhase(closedPhase)}?`)) {
+                role.phase = closedPhase;
+                role.updatedAt = new Date().toISOString();
+                await saveRole(role);
+                closeModal('roleDetailModal');
+                renderDashboard();
+                filterRoles();
+            }
+        }
+
+        function openInteractionModal(roleId) {
+            currentRoleId = roleId;
+            document.getElementById('interactionType').value = 'CONVERSATION';
+            document.getElementById('interactionNotes').value = '';
+            document.getElementById('interviewDate').value = '';
+            document.getElementById('interviewDateGroup').style.display = 'none';
+            closeModal('roleDetailModal');
+            openModal('interactionModal');
+        }
+
+        async function saveInteraction(e) {
+            e.preventDefault();
+
+            const type = document.getElementById('interactionType').value;
+            const interaction = {
+                id: 'int' + Date.now(),
+                roleId: currentRoleId,
+                type: type,
+                notes: document.getElementById('interactionNotes').value,
+                occurredAt: new Date().toISOString()
+            };
+
+            if (type === 'INTERVIEW') {
+                interaction.interviewDate = document.getElementById('interviewDate').value;
+            }
+
+            DB.interactions.push(interaction);
+            await saveInteractionToDB(interaction);
+            closeModal('interactionModal');
+
+            const role = DB.roles.find(r => r.id === currentRoleId);
+            document.getElementById('newPhaseSelect').value = role.phase;
+            openModal('phaseChangeModal');
+        }
+
+        async function updatePhaseFromModal() {
+            const newPhase = document.getElementById('newPhaseSelect').value;
+            await updateRolePhase(currentRoleId, newPhase);
+            closeModal('phaseChangeModal');
+            openRoleDetail(currentRoleId);
+        }
+
+        function loadGoals() {
+            document.getElementById('goalActiveRoles').value = DB.goals.activeRoles || '';
+            document.getElementById('goalWeeklyApplications').value = DB.goals.weeklyApplications || '';
+            document.getElementById('goalWeeklyInteractions').value = DB.goals.weeklyInteractions || '';
+            document.getElementById('goalWeeklyInterviews').value = DB.goals.weeklyInterviews || '';
+        }
+
+        async function saveGoals() {
+            DB.goals.activeRoles = parseInt(document.getElementById('goalActiveRoles').value) || null;
+            DB.goals.weeklyApplications = parseInt(document.getElementById('goalWeeklyApplications').value) || null;
+            DB.goals.weeklyInteractions = parseInt(document.getElementById('goalWeeklyInteractions').value) || null;
+            DB.goals.weeklyInterviews = parseInt(document.getElementById('goalWeeklyInterviews').value) || null;
+            
+            await saveGoalsToDB();
+            alert('Goals saved successfully!');
+            renderDashboard();
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(DB, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'agency-data.json';
+            link.click();
+        }
+    </script>
+</body>
+</html>
