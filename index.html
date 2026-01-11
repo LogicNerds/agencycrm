@@ -1023,7 +1023,7 @@
                 <div class="settings-card">
                     <div class="settings-title">Data Management</div>
                     <div class="action-buttons">
-                        <button class="btn btn-secondary" onclick="exportData()">Export Data (JSON)</button>
+                        <button class="btn btn-secondary" onclick="exportData()">Export Data (CSV)</button>
                     </div>
                 </div>
             </div>
@@ -1987,13 +1987,95 @@
         }
 
         function exportData() {
-            const dataStr = JSON.stringify(DB, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
+            // Build CSV with one row per interaction, role fields repeated
+            const rows = [];
+            
+            // Header row
+            const headers = [
+                'Company',
+                'Title',
+                'Source',
+                'Phase',
+                'Primary Contact',
+                'Email',
+                'Phone',
+                'Next Action',
+                'Follow-up Date',
+                'Role Created',
+                'Role Updated',
+                'Interaction Type',
+                'Interaction Date',
+                'Interview Date/Time',
+                'Interaction Notes'
+            ];
+            rows.push(headers.join(','));
+            
+            // Data rows - one per interaction
+            DB.roles.forEach(role => {
+                const roleInteractions = DB.interactions.filter(i => i.roleId === role.id);
+                
+                // If role has no interactions, still export one row
+                if (roleInteractions.length === 0) {
+                    const row = [
+                        escapeCsv(role.company),
+                        escapeCsv(role.title),
+                        role.source,
+                        role.phase,
+                        escapeCsv(role.primaryContact || ''),
+                        escapeCsv(role.email || ''),
+                        escapeCsv(role.phone || ''),
+                        escapeCsv(role.nextAction || ''),
+                        role.followUpDate || '',
+                        formatDate(role.createdAt),
+                        formatDate(role.updatedAt),
+                        '', // No interaction type
+                        '', // No interaction date
+                        '', // No interview date
+                        ''  // No notes
+                    ];
+                    rows.push(row.join(','));
+                } else {
+                    // One row per interaction
+                    roleInteractions.forEach(interaction => {
+                        const row = [
+                            escapeCsv(role.company),
+                            escapeCsv(role.title),
+                            role.source,
+                            role.phase,
+                            escapeCsv(role.primaryContact || ''),
+                            escapeCsv(role.email || ''),
+                            escapeCsv(role.phone || ''),
+                            escapeCsv(role.nextAction || ''),
+                            role.followUpDate || '',
+                            formatDate(role.createdAt),
+                            formatDate(role.updatedAt),
+                            interaction.type,
+                            formatDate(interaction.occurredAt),
+                            interaction.interviewDate ? formatDateTime(interaction.interviewDate) : '',
+                            escapeCsv(interaction.notes || '')
+                        ];
+                        rows.push(row.join(','));
+                    });
+                }
+            });
+            
+            const csv = rows.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'agency-data.json';
+            link.download = 'agency-export.csv';
             link.click();
+        }
+        
+        function escapeCsv(str) {
+            if (!str) return '';
+            str = String(str);
+            // If contains comma, quote, or newline, wrap in quotes and escape quotes
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
         }
 
         function toggleDisclaimer() {
