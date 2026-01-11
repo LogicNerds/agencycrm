@@ -735,6 +735,101 @@
             gap: 16px;
         }
 
+        /* Footer */
+        footer {
+            background: white;
+            border-top: 1px solid var(--border);
+            padding: 16px 0;
+            margin-top: 40px;
+            position: relative;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .footer-link {
+            color: var(--blue);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        .footer-drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 2px solid var(--border);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            z-index: 999;
+        }
+
+        .footer-drawer.open {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .drawer-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .drawer-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .drawer-close:hover {
+            background: var(--bg-hover);
+        }
+
+        .disclaimer-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .disclaimer-text p {
+            margin-bottom: 12px;
+        }
+
         @media (max-width: 768px) {
             .two-col {
                 grid-template-columns: 1fr;
@@ -747,6 +842,12 @@
             .form-row {
                 grid-template-columns: 1fr;
             }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -755,7 +856,6 @@
     <div id="loginContainer" class="login-container">
         <div class="login-box">
             <img src="/AgencyAssets/AgencyLogo.png" alt="Agency" style="width: 120px; height: auto; display: block; margin: 0 auto 24px;">
-            <p class="login-subtitle">Your Job Search Management System</p>
             
             <div id="loginError" class="error-message" style="display:none;"></div>
             
@@ -792,7 +892,7 @@
     <div id="appContainer" class="app-container">
         <header>
             <div class="header-container">
-                <img src="/AgencyAssets/AgencyLogo.png" alt="Agency" class="logo" style="height: 32px; width: auto; padding: 12px 0;">
+                <img src="/AgencyAssets/AgencyLogo.png" alt="Agency" class="logo" style="height: 96px; width: auto; padding: 12px 0;">
                 <nav>
                     <button class="nav-tab active" onclick="showPage('dashboard')">Dashboard</button>
                     <button class="nav-tab" onclick="showPage('roles')">Roles</button>
@@ -925,6 +1025,41 @@
                     <div class="action-buttons">
                         <button class="btn btn-secondary" onclick="exportData()">Export Data (JSON)</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <div>© 2025 Logic Nerds. All rights reserved.</div>
+                <div>
+                    <a class="footer-link" onclick="toggleDisclaimer()">Disclaimer</a>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Footer Drawer -->
+        <div id="footerDrawer" class="footer-drawer">
+            <div class="drawer-content">
+                <div class="drawer-header">
+                    <h3 class="drawer-title">Disclaimer</h3>
+                    <button class="drawer-close" onclick="toggleDisclaimer()">&times;</button>
+                </div>
+                <div class="disclaimer-text">
+                    <p><strong>Agency by Logic Nerds</strong></p>
+                    
+                    <p>This application ("Agency") is provided by Logic Nerds on an "as-is" and "as-available" basis. Logic Nerds makes no representations or warranties of any kind, express or implied, as to the operation of this application or the information, content, or materials included herein.</p>
+                    
+                    <p>To the fullest extent permissible by applicable law, Logic Nerds disclaims all warranties, express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement. Logic Nerds does not warrant that this application, its servers, or communications sent from Logic Nerds are free of viruses or other harmful components.</p>
+                    
+                    <p>Logic Nerds will not be liable for any damages of any kind arising from the use of this application, including but not limited to direct, indirect, incidental, punitive, and consequential damages.</p>
+                    
+                    <p>You acknowledge that all information stored within Agency is your sole responsibility. Logic Nerds is not responsible for any data loss, corruption, or unauthorized access to your information.</p>
+                    
+                    <p>By using Agency, you agree to these terms. If you do not agree, please discontinue use of the application immediately.</p>
+                    
+                    <p><em>Last Updated: January 2025</em></p>
                 </div>
             </div>
         </div>
@@ -1859,6 +1994,11 @@
             link.href = url;
             link.download = 'agency-data.json';
             link.click();
+        }
+
+        function toggleDisclaimer() {
+            const drawer = document.getElementById('footerDrawer');
+            drawer.classList.toggle('open');
         }
     </script>
 </body>
