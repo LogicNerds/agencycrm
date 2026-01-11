@@ -181,8 +181,8 @@
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 32px;
-            flex: 1;
+            padding: 0 32px 40px 32px;
+            width: 100%;
         }
 
         .page {
@@ -755,8 +755,9 @@
             margin: 0 auto;
             padding: 0 32px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
+            gap: 24px;
             font-size: 13px;
             color: var(--text-secondary);
         }
@@ -912,7 +913,8 @@
             </div>
         </header>
 
-        <div class="container">
+        <div style="flex: 1;">
+            <div class="container">
             <!-- Dashboard -->
             <div id="dashboard" class="page active">
                 <div class="kpi-row" id="kpiCards"></div>
@@ -1033,6 +1035,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
 
         <!-- Footer -->
