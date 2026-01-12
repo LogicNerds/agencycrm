@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoleCall</title>
+    <title>RoleCall - Job Search Tracker</title>
     <style>
         * {
             margin: 0;
@@ -2261,7 +2261,13 @@
                 // Show setup prompt for users without profile
                 document.getElementById('profileEmojiDisplay').textContent = '👤';
                 document.getElementById('profileNicknameDisplay').textContent = 'Profile Not Set Up';
-                document.getElementById('profileRoleDisplay').innerHTML = '<button class="btn" onclick="openModal(\'profileOnboardingModal\')" style="margin-top: 8px;">Set Up Profile to Use Community Feed</button>';
+                const setupBtn = document.createElement('button');
+                setupBtn.className = 'btn';
+                setupBtn.textContent = 'Set Up Profile to Use Community Feed';
+                setupBtn.style.marginTop = '8px';
+                setupBtn.onclick = function() { openModal('profileOnboardingModal'); };
+                document.getElementById('profileRoleDisplay').innerHTML = '';
+                document.getElementById('profileRoleDisplay').appendChild(setupBtn);
                 document.getElementById('profileShareCodeDisplay').textContent = '------';
                 document.getElementById('notifyConnection').checked = true;
                 document.getElementById('notifyPost').checked = true;
@@ -2360,7 +2366,7 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'agency-export.csv';
+            link.download = 'rolecall-export.csv';
             link.click();
         }
         
