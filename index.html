@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agency - Job Search Tracker</title>
+    <title>RoleCall</title>
     <style>
         * {
             margin: 0;
@@ -856,171 +856,13 @@
                 text-align: center;
             }
         }
-
-        /* Community Feed Styles */
-        .feed-post {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-
-        .post-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-
-        .post-author {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .post-emoji {
-            font-size: 40px;
-            line-height: 1;
-        }
-
-        .post-nickname {
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        .post-role {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .post-time {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .post-content {
-            font-size: 14px;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .post-composer {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 24px;
-        }
-
-        .char-counter {
-            text-align: right;
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 8px;
-        }
-
-        .notification-bell {
-            position: relative;
-            cursor: pointer;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-
-        .notification-bell:hover {
-            background: var(--bg-hover);
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background: var(--red);
-            color: white;
-            border-radius: 10px;
-            min-width: 18px;
-            height: 18px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 0 5px;
-        }
-
-        .notifications-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 8px;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            width: 400px;
-            max-height: 500px;
-            overflow-y: auto;
-            display: none;
-            z-index: 1000;
-        }
-
-        .notifications-dropdown.active {
-            display: block;
-        }
-
-        .notification-item {
-            padding: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .notification-item:last-child {
-            border-bottom: none;
-        }
-
-        .profile-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .profile-display {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .profile-emoji-large {
-            font-size: 64px;
-            line-height: 1;
-        }
-
-        .share-code-display {
-            background: var(--bg-hover);
-            padding: 12px 16px;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            text-align: center;
-            margin-top: 12px;
-        }
     </style>
 </head>
 <body>
     <!-- Login Screen -->
     <div id="loginContainer" class="login-container">
         <div class="login-box">
-            <img src="/AgencyAssets/RoleCall Logo.png" alt="Agency" style="width: 120px; height: auto; display: block; margin: 0 auto 24px;">
+            <img src="/AgencyAssets/RoleCall Logo.png" alt="RoleCall" style="width: 120px; height: auto; display: block; margin: 0 auto 24px;">
             
             <div id="loginError" class="error-message" style="display:none;"></div>
             
@@ -1057,27 +899,15 @@
     <div id="appContainer" class="app-container">
         <header>
             <div class="header-container">
-                <img src="/AgencyAssets/RoleCall Logo.png" alt="Agency" class="logo" style="width: 80px; height: auto; padding: 12px 0;">
+                <img src="/AgencyAssets/RoleCall Logo.png" alt="RoleCall" class="logo" style="width: 60px; height: auto; padding: 12px 0;">
                 <nav>
                     <button class="nav-tab active" onclick="showPage('dashboard')">Dashboard</button>
                     <button class="nav-tab" onclick="showPage('roles')">Roles</button>
                     <button class="nav-tab" onclick="showPage('weekly')">Weekly Stats</button>
                     <button class="nav-tab" onclick="showPage('settings')">Settings</button>
-                    <button class="nav-tab" onclick="showPage('feed')">Feed</button>
                 </nav>
                 <div class="user-menu">
                     <span class="user-email" id="userEmail"></span>
-                    <div class="notification-bell" id="notificationBell" onclick="toggleNotifications(event)">
-                        🔔
-                        <span class="notification-badge" id="notificationBadge">0</span>
-                        <div class="notifications-dropdown" id="notificationsDropdown">
-                            <div style="padding: 16px; border-bottom: 1px solid var(--border); font-weight: 600;">
-                                Connection Requests
-                            </div>
-                            <div id="notificationsList"></div>
-                        </div>
-                    </div>
-                    
                     <button class="btn btn-secondary" onclick="handleLogout()">Sign Out</button>
                 </div>
             </div>
@@ -1198,66 +1028,12 @@
                     </div>
                 </div>
 
-<div class="settings-card">
-                    <div class="settings-title">Your Profile</div>
-                    <div class="profile-card">
-                        <div class="profile-display">
-                            <span class="profile-emoji-large" id="profileEmojiDisplay"></span>
-                            <div>
-                                <div style="font-size: 20px; font-weight: 600;" id="profileNicknameDisplay"></div>
-                                <div style="color: var(--text-secondary); margin-top: 4px;" id="profileRoleDisplay"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">Your Share Code</label>
-                            <div class="share-code-display" id="profileShareCodeDisplay"></div>
-                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px; text-align: center;">
-                                Share this code with others to connect
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="settings-card">
-                    <div class="settings-title">Notification Preferences</div>
-                    <div style="display: flex; flex-direction: column; gap: 16px;">
-                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-                            <input type="checkbox" id="notifyConnection" onchange="saveNotificationPrefs()">
-                            <span>Notify me when someone sends a connection request</span>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-                            <input type="checkbox" id="notifyPost" onchange="saveNotificationPrefs()">
-                            <span>Notify me when connections post updates</span>
-                        </label>
-                    </div>
-                </div>
-
                 <div class="settings-card">
                     <div class="settings-title">Data Management</div>
                     <div class="action-buttons">
                         <button class="btn btn-secondary" onclick="exportData()">Export Data (CSV)</button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Feed -->
-            <div id="feed" class="page">
-                <div class="page-header">
-                    <h1 class="page-title">Community Feed</h1>
-                    <button class="btn" onclick="openModal('inviteModal')">+ Invite</button>
-                </div>
-
-                <div class="post-composer">
-                    <textarea id="postContent" placeholder="Share an update with your connections..." 
-                              style="width: 100%; border: none; resize: vertical; min-height: 100px; font-family: inherit; font-size: 14px;"
-                              oninput="updateCharCount()"></textarea>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
-                        <div class="char-counter" id="charCount">0/500</div>
-                        <button class="btn" onclick="createPost(document.getElementById('postContent').value)">Post</button>
-                    </div>
-                </div>
-
-                <div id="feedPosts"></div>
             </div>
         </div>
         </div>
@@ -1280,19 +1056,19 @@
                     <button class="drawer-close" onclick="toggleDisclaimer()">&times;</button>
                 </div>
                 <div class="disclaimer-text">
-                    <p><strong>Agency by Logic Nerds</strong></p>
+                    <p><strong>RoleCall by Logic Nerds</strong></p>
                     
-                    <p>This application ("Agency") is provided by Logic Nerds on an "as-is" and "as-available" basis. Logic Nerds makes no representations or warranties of any kind, express or implied, as to the operation of this application or the information, content, or materials included herein.</p>
+                    <p>This application ("RoleCall") is provided by Logic Nerds on an "as-is" and "as-available" basis. Logic Nerds makes no representations or warranties of any kind, express or implied, as to the operation of this application or the information, content, or materials included herein.</p>
                     
                     <p>To the fullest extent permissible by applicable law, Logic Nerds disclaims all warranties, express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement. Logic Nerds does not warrant that this application, its servers, or communications sent from Logic Nerds are free of viruses or other harmful components.</p>
                     
                     <p>Logic Nerds will not be liable for any damages of any kind arising from the use of this application, including but not limited to direct, indirect, incidental, punitive, and consequential damages.</p>
                     
-                    <p>You acknowledge that all information stored within Agency is your sole responsibility. Logic Nerds is not responsible for any data loss, corruption, or unauthorized access to your information.</p>
+                    <p>You acknowledge that all information stored within RoleCall is your sole responsibility. Logic Nerds is not responsible for any data loss, corruption, or unauthorized access to your information.</p>
                     
-                    <p>By using Agency, you agree to these terms. If you do not agree, please discontinue use of the application immediately.</p>
+                    <p>By using RoleCall, you agree to these terms. If you do not agree, please discontinue use of the application immediately.</p>
                     
-                    <p><em>Last Updated: January 2025</em></p>
+                    <p><em>Last Updated: January 2026</em></p>
                 </div>
             </div>
         </div>
@@ -1482,39 +1258,17 @@
             }
         };
         let currentRoleId = null;
-        let userProfile = null;
-        let userConnections = [];
-        let pendingRequests = [];
-
-        const TOP_EMOJIS = [
-            '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃',
-            '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙',
-            '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔',
-            '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥',
-            '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮',
-            '🤧', '🥵', '🥶', '😎', '🤓', '🧐', '😕', '😟', '🙁', '☹️',
-            '😮', '😯', '😲', '😳', '🥺', '😦', '😧', '😨', '😰', '😥',
-            '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱',
-            '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤏', '✌️', '🤞', '🤟',
-            '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎'
-        ];
-
 
         // ===========================
         // AUTHENTICATION
         // ===========================
-        auth.onAuthStateChanged(async user => {
+        auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('appContainer').classList.add('active');
                 document.getElementById('userEmail').textContent = user.email;
-                await loadAllData();
-                const hasProfile = await checkUserProfile();
-                if (hasProfile) {
-                    await loadConnections();
-                    document.getElementById('loginContainer').style.display = 'none';
-                    document.getElementById('appContainer').classList.add('active');
-                    populateEmojiSelector();
-                }
+                loadAllData();
             } else {
                 currentUser = null;
                 document.getElementById('loginContainer').style.display = 'flex';
@@ -2023,7 +1777,6 @@
             if (pageId === 'roles') filterRoles();
             if (pageId === 'weekly') renderWeeklyReport();
             if (pageId === 'settings') loadGoals();
-            if (pageId === 'feed') loadFeed();
         }
 
         function openModal(modalId) {
@@ -2240,15 +1993,6 @@
             document.getElementById('goalWeeklyApplications').value = DB.goals.weeklyApplications || '';
             document.getElementById('goalWeeklyInteractions').value = DB.goals.weeklyInteractions || '';
             document.getElementById('goalWeeklyInterviews').value = DB.goals.weeklyInterviews || '';
-            
-            if (userProfile) {
-                document.getElementById('profileEmojiDisplay').textContent = userProfile.emoji;
-                document.getElementById('profileNicknameDisplay').textContent = userProfile.nickname;
-                document.getElementById('profileRoleDisplay').textContent = 'Looking for: ' + userProfile.desiredRole;
-                document.getElementById('profileShareCodeDisplay').textContent = userProfile.shareCode;
-                document.getElementById('notifyConnection').checked = userProfile.notifyOnConnection !== false;
-                document.getElementById('notifyPost').checked = userProfile.notifyOnPost !== false;
-            }
         }
 
         async function saveGoals() {
@@ -2343,7 +2087,7 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'agency-export.csv';
+            link.download = 'rolecall-export.csv';
             link.click();
         }
         
@@ -2356,386 +2100,6 @@
             }
             return str;
         }
-
-
-        // ===========================
-        // COMMUNITY FEED FUNCTIONS
-        // ===========================
-        
-        function generateShareCode() {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            let code = '';
-            for (let i = 0; i < 6; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
-        }
-
-        async function isShareCodeUnique(code) {
-            const snapshot = await db.collection('profiles')
-                .where('shareCode', '==', code)
-                .limit(1)
-                .get();
-            return snapshot.empty;
-        }
-
-        async function generateUniqueShareCode() {
-            let code = generateShareCode();
-            let attempts = 0;
-            while (!(await isShareCodeUnique(code)) && attempts < 10) {
-                code = generateShareCode();
-                attempts++;
-            }
-            return code;
-        }
-
-        async function checkUserProfile() {
-            if (!currentUser) return false;
-            
-            const profileDoc = await db.collection('profiles').doc(currentUser.uid).get();
-            if (!profileDoc.exists) {
-                openProfileOnboarding();
-                return false;
-            }
-            
-            userProfile = profileDoc.data();
-            return true;
-        }
-
-        async function saveUserProfile(nickname, emoji, desiredRole) {
-            if (!currentUser) return;
-            
-            const shareCode = await generateUniqueShareCode();
-            const profile = {
-                userId: currentUser.uid,
-                nickname: nickname,
-                emoji: emoji,
-                desiredRole: desiredRole,
-                shareCode: shareCode,
-                notifyOnConnection: true,
-                notifyOnPost: true,
-                createdAt: new Date().toISOString()
-            };
-            
-            await db.collection('profiles').doc(currentUser.uid).set(profile);
-            userProfile = profile;
-            closeModal('profileOnboardingModal');
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('appContainer').classList.add('active');
-            await loadConnections();
-        }
-
-        async function loadConnections() {
-            if (!currentUser) return;
-            
-            const sentSnapshot = await db.collection('connections')
-                .where('fromUserId', '==', currentUser.uid)
-                .get();
-            
-            const receivedSnapshot = await db.collection('connections')
-                .where('toUserId', '==', currentUser.uid)
-                .get();
-            
-            userConnections = [];
-            pendingRequests = [];
-            
-            sentSnapshot.docs.forEach(doc => {
-                const conn = { id: doc.id, ...doc.data() };
-                if (conn.status === 'approved') {
-                    userConnections.push(conn.toUserId);
-                }
-            });
-            
-            receivedSnapshot.docs.forEach(doc => {
-                const conn = { id: doc.id, ...doc.data() };
-                if (conn.status === 'approved') {
-                    userConnections.push(conn.fromUserId);
-                } else if (conn.status === 'pending') {
-                    pendingRequests.push(conn);
-                }
-            });
-            
-            updateNotificationBadge();
-        }
-
-        async function sendConnectionRequest(shareCode) {
-            if (!currentUser) return;
-            
-            shareCode = shareCode.trim().toUpperCase();
-            if (!shareCode) {
-                alert('Please enter a Share Code');
-                return;
-            }
-            
-            const profileSnapshot = await db.collection('profiles')
-                .where('shareCode', '==', shareCode)
-                .limit(1)
-                .get();
-            
-            if (profileSnapshot.empty) {
-                alert('No user found with that Share Code');
-                return;
-            }
-            
-            const targetProfile = profileSnapshot.docs[0];
-            const targetUserId = targetProfile.data().userId;
-            
-            if (targetUserId === currentUser.uid) {
-                alert('You cannot connect with yourself');
-                return;
-            }
-            
-            const existingConnection = await db.collection('connections')
-                .where('fromUserId', '==', currentUser.uid)
-                .where('toUserId', '==', targetUserId)
-                .limit(1)
-                .get();
-            
-            if (!existingConnection.empty) {
-                alert('Connection request already sent');
-                return;
-            }
-            
-            const reverseConnection = await db.collection('connections')
-                .where('fromUserId', '==', targetUserId)
-                .where('toUserId', '==', currentUser.uid)
-                .limit(1)
-                .get();
-            
-            if (!reverseConnection.empty) {
-                alert('This user has already sent you a request');
-                return;
-            }
-            
-            await db.collection('connections').add({
-                fromUserId: currentUser.uid,
-                toUserId: targetUserId,
-                status: 'pending',
-                createdAt: new Date().toISOString()
-            });
-            
-            alert('Connection request sent!');
-            document.getElementById('inviteShareCode').value = '';
-            closeModal('inviteModal');
-        }
-
-        async function approveConnection(connectionId) {
-            await db.collection('connections').doc(connectionId).update({
-                status: 'approved',
-                approvedAt: new Date().toISOString()
-            });
-            
-            await loadConnections();
-            renderNotifications();
-            alert('Connection approved!');
-        }
-
-        async function rejectConnection(connectionId) {
-            await db.collection('connections').doc(connectionId).delete();
-            await loadConnections();
-            renderNotifications();
-        }
-
-        async function createPost(content) {
-            if (!currentUser || !userProfile) return;
-            
-            content = content.trim();
-            if (!content) {
-                alert('Post cannot be empty');
-                return;
-            }
-            
-            if (content.length > 500) {
-                alert('Post cannot exceed 500 characters');
-                return;
-            }
-            
-            await db.collection('posts').add({
-                authorId: currentUser.uid,
-                content: content,
-                createdAt: new Date().toISOString()
-            });
-            
-            document.getElementById('postContent').value = '';
-            updateCharCount();
-            await loadFeed();
-            alert('Posted!');
-        }
-
-        async function loadFeed() {
-            if (!currentUser) return;
-            
-            if (userConnections.length === 0) {
-                document.getElementById('feedPosts').innerHTML = `
-                    <div class="empty-state">
-                        <p style="margin-bottom: 12px;">Your feed is empty</p>
-                        <p style="font-size: 13px; color: var(--text-secondary);">Connect with others to see their posts here</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            const connectionBatch = userConnections.slice(0, 10);
-            
-            const postsSnapshot = await db.collection('posts')
-                .where('authorId', 'in', connectionBatch)
-                .orderBy('createdAt', 'desc')
-                .limit(50)
-                .get();
-            
-            const posts = [];
-            
-            for (const doc of postsSnapshot.docs) {
-                const post = { id: doc.id, ...doc.data() };
-                const authorProfile = await db.collection('profiles').doc(post.authorId).get();
-                if (authorProfile.exists) {
-                    post.author = authorProfile.data();
-                    posts.push(post);
-                }
-            }
-            
-            posts.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-            
-            renderFeed(posts);
-        }
-
-        function renderFeed(posts) {
-            const feedHTML = posts.map(post => `
-                <div class="feed-post">
-                    <div class="post-header">
-                        <div class="post-author">
-                            <span class="post-emoji">${post.author.emoji}</span>
-                            <div>
-                                <div class="post-nickname">${post.author.nickname}</div>
-                                <div class="post-role">Looking for: ${post.author.desiredRole}</div>
-                            </div>
-                        </div>
-                        <div class="post-time">${formatRelativeTime(new Date(post.createdAt))}</div>
-                    </div>
-                    <div class="post-content">${escapeHtml(post.content)}</div>
-                </div>
-            `).join('');
-            
-            document.getElementById('feedPosts').innerHTML = feedHTML || `
-                <div class="empty-state">No posts yet</div>
-            `;
-        }
-
-        async function renderNotifications() {
-            if (pendingRequests.length === 0) {
-                document.getElementById('notificationsList').innerHTML = `
-                    <div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 13px;">
-                        No pending requests
-                    </div>
-                `;
-                return;
-            }
-            
-            const notificationsHTML = [];
-            
-            for (const request of pendingRequests) {
-                const fromProfile = await db.collection('profiles').doc(request.fromUserId).get();
-                if (fromProfile.exists) {
-                    const profile = fromProfile.data();
-                    
-                    notificationsHTML.push(`
-                        <div class="notification-item">
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                                <span style="font-size: 32px;">${profile.emoji}</span>
-                                <div>
-                                    <div style="font-weight: 600;">${profile.nickname}</div>
-                                    <div style="font-size: 12px; color: var(--text-secondary);">Looking for: ${profile.desiredRole}</div>
-                                </div>
-                            </div>
-                            <div class="action-buttons">
-                                <button class="btn btn-success" onclick="approveConnection('${request.id}')">Accept</button>
-                                <button class="btn btn-secondary" onclick="rejectConnection('${request.id}')">Decline</button>
-                            </div>
-                        </div>
-                    `);
-                }
-            }
-            
-            document.getElementById('notificationsList').innerHTML = notificationsHTML.join('');
-        }
-
-        function updateNotificationBadge() {
-            const badge = document.getElementById('notificationBadge');
-            if (pendingRequests.length > 0) {
-                badge.textContent = pendingRequests.length;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-
-        function updateCharCount() {
-            const content = document.getElementById('postContent').value;
-            const count = content.length;
-            const counter = document.getElementById('charCount');
-            counter.textContent = `${count}/500`;
-            
-            if (count > 500) {
-                counter.style.color = 'var(--red)';
-            } else if (count > 450) {
-                counter.style.color = 'var(--yellow)';
-            } else {
-                counter.style.color = 'var(--text-secondary)';
-            }
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function toggleNotifications(event) {
-            event.stopPropagation();
-            const dropdown = document.getElementById('notificationsDropdown');
-            dropdown.classList.toggle('active');
-            if (dropdown.classList.contains('active')) {
-                renderNotifications();
-            }
-        }
-
-        function openProfileOnboarding() {
-            openModal('profileOnboardingModal');
-        }
-
-        function populateEmojiSelector() {
-            const select = document.getElementById('onboardEmoji');
-            if (!select || select.children.length > 1) return;
-            
-            TOP_EMOJIS.forEach(emoji => {
-                const option = document.createElement('option');
-                option.value = emoji;
-                option.textContent = emoji;
-                option.style.fontSize = '20px';
-                select.appendChild(option);
-            });
-        }
-
-        async function saveNotificationPrefs() {
-            if (!currentUser) return;
-            
-            await db.collection('profiles').doc(currentUser.uid).update({
-                notifyOnConnection: document.getElementById('notifyConnection').checked,
-                notifyOnPost: document.getElementById('notifyPost').checked
-            });
-            
-            userProfile.notifyOnConnection = document.getElementById('notifyConnection').checked;
-            userProfile.notifyOnPost = document.getElementById('notifyPost').checked;
-        }
-
-        document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('notificationsDropdown');
-            const bell = document.getElementById('notificationBell');
-            
-            if (dropdown && bell && !dropdown.contains(e.target) && !bell.contains(e.target)) {
-                dropdown.classList.remove('active');
-            }
-        });
 
         function toggleDisclaimer() {
             const drawer = document.getElementById('footerDrawer');
