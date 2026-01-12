@@ -1092,6 +1092,10 @@
                         <input type="text" id="newTitle" required>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Salary</label>
+                    <input type="text" id="newSalary" placeholder="e.g., $120k-$150k">
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Source *</label>
@@ -1574,6 +1578,7 @@
                         <span class="role-badge ${badgeClass}">${badgeLabel}</span>
                     </div>
                     <div class="role-title">${role.title}</div>
+                    ${role.salary ? `<div style="font-size: 13px; color: var(--text-primary); font-weight: 500; margin-bottom: 4px;">${role.salary}</div>` : ''}
                     <div class="role-meta">${formatSource(role.source)} · Last Contact: ${formatRelativeTime(lastActivity)}</div>
                     ${actionHTML}
                 </div>
@@ -1785,6 +1790,7 @@
         function openNewRoleModal() {
             document.getElementById('newCompany').value = '';
             document.getElementById('newTitle').value = '';
+            document.getElementById('newSalary').value = '';
             document.getElementById('newSource').value = 'REFERRAL';
             document.getElementById('newPhase').value = 'INTERESTED';
             document.getElementById('newContact').value = '';
@@ -1802,6 +1808,7 @@
                 id: 'role' + Date.now(),
                 company: document.getElementById('newCompany').value,
                 title: document.getElementById('newTitle').value,
+                salary: document.getElementById('newSalary').value,
                 source: document.getElementById('newSource').value,
                 phase: document.getElementById('newPhase').value,
                 primaryContact: document.getElementById('newContact').value,
@@ -1835,6 +1842,10 @@
                 ${needsWarning ? '<div class="warning-banner">⚠️ Action Required: This role needs either a next action or should be marked as WAITING</div>' : ''}
                 
                 <div style="margin-bottom: 24px;">
+                    <div class="form-group">
+                        <label>Salary</label>
+                        <input type="text" id="editSalary" value="${role.salary || ''}" onchange="updateRoleField('${roleId}', 'salary', this.value)" placeholder="e.g., $120k-$150k">
+                    </div>
                     <div class="form-group">
                         <label>Phase</label>
                         <select id="editPhase" onchange="updateRolePhase('${roleId}', this.value)">
@@ -2003,6 +2014,7 @@
             const headers = [
                 'Company',
                 'Title',
+                'Salary',
                 'Source',
                 'Phase',
                 'Primary Contact',
@@ -2028,6 +2040,7 @@
                     const row = [
                         escapeCsv(role.company),
                         escapeCsv(role.title),
+                        escapeCsv(role.salary || ''),
                         role.source,
                         role.phase,
                         escapeCsv(role.primaryContact || ''),
@@ -2049,6 +2062,7 @@
                         const row = [
                             escapeCsv(role.company),
                             escapeCsv(role.title),
+                            escapeCsv(role.salary || ''),
                             role.source,
                             role.phase,
                             escapeCsv(role.primaryContact || ''),
