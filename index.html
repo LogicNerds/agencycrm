@@ -1446,6 +1446,53 @@
         </div>
     </div>
 
+    <!-- Profile Onboarding Modal -->
+    <div id="profileOnboardingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Welcome! Set Up Your Profile</h3>
+            </div>
+            <form onsubmit="event.preventDefault(); saveUserProfile(document.getElementById('onboardNickname').value, document.getElementById('onboardEmoji').value, document.getElementById('onboardRole').value);">
+                <div class="form-group">
+                    <label>Nickname *</label>
+                    <input type="text" id="onboardNickname" required maxlength="30" placeholder="How should others see you?">
+                </div>
+                <div class="form-group">
+                    <label>Choose Your Emoji *</label>
+                    <select id="onboardEmoji" required style="font-size: 20px;">
+                        <option value="">Select an emoji...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Desired Role *</label>
+                    <input type="text" id="onboardRole" required placeholder="e.g., Software Engineer, Product Manager">
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">Complete Setup</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Invite Modal -->
+    <div id="inviteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Invite Someone</h3>
+                <button class="close-btn" onclick="closeModal('inviteModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Enter Their Share Code</label>
+                <input type="text" id="inviteShareCode" placeholder="ABC123" maxlength="6" 
+                       style="text-transform: uppercase; font-family: 'Courier New', monospace; font-size: 18px; letter-spacing: 2px; text-align: center;">
+            </div>
+            <div class="action-buttons">
+                <button class="btn" onclick="sendConnectionRequest(document.getElementById('inviteShareCode').value)">Send Request</button>
+                <button class="btn btn-secondary" onclick="closeModal('inviteModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
