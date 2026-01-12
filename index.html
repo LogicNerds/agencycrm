@@ -2641,6 +2641,18 @@
             alert('Posted!');
         }
 
+        async function deletePost(postId) {
+            if (!confirm('Delete this post?')) return;
+            
+            try {
+                await db.collection('posts').doc(postId).delete();
+                await loadFeed();
+            } catch (error) {
+                console.error('Error deleting post:', error);
+                alert('Failed to delete post');
+            }
+        }
+
         async function loadFeed() {
             if (!currentUser) return;
             
@@ -2689,21 +2701,31 @@
         }
 
         function renderFeed(posts) {
-            const feedHTML = posts.map(post => `
-                <div class="feed-post">
-                    <div class="post-header">
-                        <div class="post-author">
-                            <span class="post-emoji">${post.author.emoji}</span>
-                            <div>
-                                <div class="post-nickname">${post.author.nickname}</div>
-                                <div class="post-role">Looking for: ${post.author.desiredRole}</div>
+            const feedHTML = posts.map(post => {
+                const isOwnPost = post.authorId === currentUser.uid;
+                const deleteButton = isOwnPost ? `
+                    <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="deletePost('${post.id}')">Delete</button>
+                ` : '';
+                
+                return `
+                    <div class="feed-post">
+                        <div class="post-header">
+                            <div class="post-author">
+                                <span class="post-emoji">${post.author.emoji}</span>
+                                <div>
+                                    <div class="post-nickname">${post.author.nickname}</div>
+                                    <div class="post-role">Looking for: ${post.author.desiredRole}</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="post-time">${formatRelativeTime(new Date(post.createdAt))}</div>
+                                ${deleteButton}
                             </div>
                         </div>
-                        <div class="post-time">${formatRelativeTime(new Date(post.createdAt))}</div>
+                        <div class="post-content">${escapeHtml(post.content)}</div>
                     </div>
-                    <div class="post-content">${escapeHtml(post.content)}</div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
             
             document.getElementById('feedPosts').innerHTML = feedHTML || `
                 <div class="empty-state">No posts yet</div>
