@@ -2654,20 +2654,20 @@
                 return;
             }
             
-            if (userConnections.length === 0) {
+            // Include user's own posts plus connections
+            const usersToShow = [currentUser.uid, ...userConnections];
+            
+            if (usersToShow.length === 0) {
                 document.getElementById('feedPosts').innerHTML = `
-                    <div class="empty-state">
-                        <p style="margin-bottom: 12px;">Your feed is empty</p>
-                        <p style="font-size: 13px; color: var(--text-secondary);">Connect with others to see their posts here</p>
-                    </div>
+                    <div class="empty-state">No posts yet</div>
                 `;
                 return;
             }
             
-            const connectionBatch = userConnections.slice(0, 10);
+            const userBatch = usersToShow.slice(0, 10);
             
             const postsSnapshot = await db.collection('posts')
-                .where('authorId', 'in', connectionBatch)
+                .where('authorId', 'in', userBatch)
                 .orderBy('createdAt', 'desc')
                 .limit(50)
                 .get();
