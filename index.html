@@ -906,6 +906,83 @@
             word-wrap: break-word;
         }
 
+        .post-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .reaction-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .reaction-btn:hover {
+            background: var(--bg-hover);
+        }
+
+        .reaction-btn.active {
+            background: var(--blue-bg);
+            color: var(--blue);
+        }
+
+        .reaction-count {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .comments-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .comment {
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comment-text {
+            color: var(--text-primary);
+            margin-left: 28px;
+        }
+
+        .comment-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .comment-input input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .comment-input button {
+            padding: 8px 16px;
+        }
+
         .post-composer {
             background: white;
             border: 1px solid var(--border);
@@ -2968,6 +3045,78 @@
             }
         }
 
+        async function toggleReaction(postId, reactionType) {
+            if (!currentUser) return;
+            
+            try {
+                const postRef = db.collection('posts').doc(postId);
+                const postDoc = await postRef.get();
+                const post = postDoc.data();
+                
+                const reactions = post.reactions || { thumbsUp: [], support: [], celebrate: [] };
+                const reactionArray = reactions[reactionType] || [];
+                
+                // Toggle: add if not present, remove if present
+                const userIndex = reactionArray.indexOf(currentUser.uid);
+                if (userIndex > -1) {
+                    reactionArray.splice(userIndex, 1);
+                } else {
+                    reactionArray.push(currentUser.uid);
+                }
+                
+                reactions[reactionType] = reactionArray;
+                
+                await postRef.update({ reactions });
+                await loadFeed();
+            } catch (error) {
+                console.error('Error toggling reaction:', error);
+                alert('Failed to react to post');
+            }
+        }
+
+        async function addComment(postId) {
+            if (!currentUser || !userProfile) return;
+            
+            const input = document.getElementById(`comment-input-${postId}`);
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            if (text.length > 200) {
+                alert('Comment cannot exceed 200 characters');
+                return;
+            }
+            
+            try {
+                const postRef = db.collection('posts').doc(postId);
+                const postDoc = await postRef.get();
+                const post = postDoc.data();
+                
+                const comments = post.comments || [];
+                comments.push({
+                    authorId: currentUser.uid,
+                    authorNickname: userProfile.nickname,
+                    authorEmoji: userProfile.emoji,
+                    text: text,
+                    createdAt: new Date().toISOString()
+                });
+                
+                await postRef.update({ comments });
+                input.value = '';
+                await loadFeed();
+            } catch (error) {
+                console.error('Error adding comment:', error);
+                alert('Failed to add comment');
+            }
+        }
+
+        function focusCommentInput(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            if (input) {
+                input.focus();
+            }
+        }
+
         async function loadFeed() {
             if (!currentUser) return;
             
@@ -3010,7 +3159,8 @@
                 }
             }
             
-            posts.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            // Sort newest first
+            posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             
             renderFeed(posts);
         }
@@ -3021,6 +3171,20 @@
                 const deleteButton = isOwnPost ? `
                     <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="deletePost('${post.id}')">Delete</button>
                 ` : '';
+                
+                // Get reaction counts
+                const reactions = post.reactions || {};
+                const thumbsUpCount = reactions.thumbsUp?.length || 0;
+                const supportCount = reactions.support?.length || 0;
+                const celebrateCount = reactions.celebrate?.length || 0;
+                
+                // Check if current user has reacted
+                const userThumbsUp = reactions.thumbsUp?.includes(currentUser.uid);
+                const userSupport = reactions.support?.includes(currentUser.uid);
+                const userCelebrate = reactions.celebrate?.includes(currentUser.uid);
+                
+                // Get comments
+                const comments = post.comments || [];
                 
                 return `
                     <div class="feed-post">
@@ -3038,6 +3202,39 @@
                             </div>
                         </div>
                         <div class="post-content">${escapeHtml(post.content)}</div>
+                        
+                        <div class="post-actions">
+                            <button class="reaction-btn ${userThumbsUp ? 'active' : ''}" onclick="toggleReaction('${post.id}', 'thumbsUp')">
+                                👍 ${thumbsUpCount > 0 ? `<span class="reaction-count">${thumbsUpCount}</span>` : ''}
+                            </button>
+                            <button class="reaction-btn ${userSupport ? 'active' : ''}" onclick="toggleReaction('${post.id}', 'support')">
+                                🤝 ${supportCount > 0 ? `<span class="reaction-count">${supportCount}</span>` : ''}
+                            </button>
+                            <button class="reaction-btn ${userCelebrate ? 'active' : ''}" onclick="toggleReaction('${post.id}', 'celebrate')">
+                                🎉 ${celebrateCount > 0 ? `<span class="reaction-count">${celebrateCount}</span>` : ''}
+                            </button>
+                            <button class="reaction-btn" onclick="focusCommentInput('${post.id}')">
+                                💬 ${comments.length > 0 ? `<span class="reaction-count">${comments.length}</span>` : ''}
+                            </button>
+                        </div>
+                        
+                        ${comments.length > 0 || true ? `
+                            <div class="comments-section" id="comments-${post.id}">
+                                ${comments.map(comment => `
+                                    <div class="comment">
+                                        <div class="comment-author">
+                                            <span style="font-size: 20px;">${comment.authorEmoji}</span>
+                                            <span>${comment.authorNickname}</span>
+                                        </div>
+                                        <div class="comment-text">${escapeHtml(comment.text)}</div>
+                                    </div>
+                                `).join('')}
+                                <div class="comment-input">
+                                    <input type="text" id="comment-input-${post.id}" placeholder="Add a comment..." maxlength="200" onkeypress="if(event.key==='Enter') addComment('${post.id}')">
+                                    <button class="btn btn-secondary" onclick="addComment('${post.id}')">Post</button>
+                                </div>
+                            </div>
+                        ` : ''}
                     </div>
                 `;
             }).join('');
