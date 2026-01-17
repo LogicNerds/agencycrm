@@ -1247,13 +1247,11 @@
             <div id="feed" class="page">
                 <div class="page-header">
                     <h1 class="page-title">Community Feed</h1>
-                    <button class="btn" onclick="openModal('inviteModal')">+ Invite</button>
-                </div>
-
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">Your community is</div>
-                    <div style="font-size: 32px; font-weight: 700; color: var(--blue); cursor: pointer;" onclick="openModal('communityModal')" id="communityCount">
-                        0 deep
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="font-size: 14px; color: var(--text-secondary); cursor: pointer;" onclick="showPage('community')" id="communityCount">
+                            Your community is 0 deep
+                        </div>
+                        <button class="btn" onclick="openModal('inviteModal')">+ Invite</button>
                     </div>
                 </div>
 
@@ -1268,6 +1266,15 @@
                 </div>
 
                 <div id="feedPosts"></div>
+            </div>
+
+            <!-- Community -->
+            <div id="community" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Your Community</h1>
+                    <button class="btn btn-secondary" onclick="showPage('feed')">← Back to Feed</button>
+                </div>
+                <div id="communityListPage"></div>
             </div>
         </div>
         </div>
@@ -1547,17 +1554,6 @@
                 <button class="btn" onclick="sendConnectionRequest(document.getElementById('inviteShareCode').value)">Send Request</button>
                 <button class="btn btn-secondary" onclick="closeModal('inviteModal')">Cancel</button>
             </div>
-        </div>
-    </div>
-
-    <!-- Community Modal -->
-    <div id="communityModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">
-                <h3 class="modal-title">Your Community</h3>
-                <button class="close-btn" onclick="closeModal('communityModal')">&times;</button>
-            </div>
-            <div id="communityList"></div>
         </div>
     </div>
 
@@ -2207,7 +2203,7 @@
             document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
 
             document.getElementById(pageId).classList.add('active');
-            event.target.classList.add('active');
+            if (event && event.target) event.target.classList.add('active');
 
             if (pageId === 'dashboard') renderDashboard();
             if (pageId === 'roles') filterRoles();
@@ -2217,14 +2213,11 @@
                 loadFeed();
                 updateCommunityCount();
             }
+            if (pageId === 'community') renderCommunityPage();
         }
 
         function openModal(modalId) {
-            if (modalId === 'communityModal') {
-                showCommunityList();
-            } else {
-                document.getElementById(modalId).classList.add('active');
-            }
+            document.getElementById(modalId).classList.add('active');
         }
 
         function closeModal(modalId) {
@@ -2722,23 +2715,23 @@
             const count = userConnections.length + 1; // +1 for yourself
             const countEl = document.getElementById('communityCount');
             if (countEl) {
-                countEl.textContent = `${count} deep`;
+                countEl.textContent = `Your community is ${count} deep`;
             }
         }
 
-        async function showCommunityList() {
+        async function renderCommunityPage() {
             if (!currentUser || !userProfile) return;
             
             const communityHTML = [];
             
             // Add yourself first
             communityHTML.push(`
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border);">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 32px;">${userProfile.emoji}</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px; border: 1px solid var(--border); border-radius: 8px; background: white; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <span style="font-size: 40px;">${userProfile.emoji}</span>
                         <div>
-                            <div style="font-weight: 600;">${userProfile.nickname} (You)</div>
-                            <div style="font-size: 12px; color: var(--text-secondary);">Looking for: ${userProfile.desiredRole}</div>
+                            <div style="font-weight: 600; font-size: 16px;">${userProfile.nickname} <span style="color: var(--text-secondary); font-weight: 400;">(You)</span></div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">Looking for: ${userProfile.desiredRole}</div>
                         </div>
                     </div>
                 </div>
@@ -2750,27 +2743,26 @@
                 if (profileDoc.exists) {
                     const profile = profileDoc.data();
                     communityHTML.push(`
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border);">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <span style="font-size: 32px;">${profile.emoji}</span>
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 20px; border: 1px solid var(--border); border-radius: 8px; background: white; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <span style="font-size: 40px;">${profile.emoji}</span>
                                 <div>
-                                    <div style="font-weight: 600;">${profile.nickname}</div>
-                                    <div style="font-size: 12px; color: var(--text-secondary);">Looking for: ${profile.desiredRole}</div>
+                                    <div style="font-weight: 600; font-size: 16px;">${profile.nickname}</div>
+                                    <div style="font-size: 13px; color: var(--text-secondary);">Looking for: ${profile.desiredRole}</div>
                                 </div>
                             </div>
-                            <button class="btn btn-danger" style="font-size: 12px; padding: 6px 12px;" onclick="severConnection('${userId}')">Sever</button>
+                            <button class="btn btn-danger" onclick="severConnection('${userId}')">Sever Connection</button>
                         </div>
                     `);
                 }
             }
             
-            document.getElementById('communityList').innerHTML = communityHTML.join('') || `
-                <div style="padding: 40px; text-align: center; color: var(--text-secondary);">
-                    No connections yet
+            document.getElementById('communityListPage').innerHTML = communityHTML.join('') || `
+                <div class="empty-state">
+                    <p style="margin-bottom: 12px;">Your community is just you right now</p>
+                    <p style="font-size: 13px; color: var(--text-secondary);">Use the Invite button to connect with others</p>
                 </div>
             `;
-            
-            openModal('communityModal');
         }
 
         async function severConnection(userId) {
@@ -2794,8 +2786,8 @@
                 receivedSnapshot.docs.forEach(doc => doc.ref.delete());
                 
                 await loadConnections();
-                closeModal('communityModal');
                 await loadFeed(); // Refresh feed since connections changed
+                showPage('feed'); // Go back to feed
                 alert('Connection severed');
             } catch (error) {
                 console.error('Error severing connection:', error);
