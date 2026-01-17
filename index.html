@@ -983,6 +983,61 @@
             padding: 8px 16px;
         }
 
+        /* Help Tooltips */
+        .help-tooltip {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: var(--blue);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 16px;
+            cursor: help;
+            margin-left: 6px;
+            position: relative;
+        }
+
+        .help-tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background: var(--text-primary);
+            color: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.4;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .help-tooltip:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 2px;
+            border: 6px solid transparent;
+            border-top-color: var(--text-primary);
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .help-tooltip:hover::after {
+                white-space: normal;
+                max-width: 200px;
+            }
+        }
+
         .post-composer {
             background: white;
             border: 1px solid var(--border);
@@ -1255,19 +1310,19 @@
                     <div class="settings-description">Set your weekly goals to track progress. Leave blank to hide goal tracking.</div>
                     <div class="goal-grid">
                         <div class="form-group">
-                            <label>Active Roles Goal</label>
+                            <label>Active Roles Goal <span class="help-tooltip" data-tooltip="Target number of roles you want actively pursuing at once">?</span></label>
                             <input type="number" id="goalActiveRoles" min="0" placeholder="e.g., 10">
                         </div>
                         <div class="form-group">
-                            <label>Weekly Applications Goal</label>
+                            <label>Weekly Applications Goal <span class="help-tooltip" data-tooltip="How many applications you want to submit per week">?</span></label>
                             <input type="number" id="goalWeeklyApplications" min="0" placeholder="e.g., 5">
                         </div>
                         <div class="form-group">
-                            <label>Weekly Interactions Goal</label>
+                            <label>Weekly Interactions Goal <span class="help-tooltip" data-tooltip="Target number of touchpoints per week (emails, calls, messages, interviews)">?</span></label>
                             <input type="number" id="goalWeeklyInteractions" min="0" placeholder="e.g., 10">
                         </div>
                         <div class="form-group">
-                            <label>Weekly Interviews Goal</label>
+                            <label>Weekly Interviews Goal <span class="help-tooltip" data-tooltip="How many interviews you aim to complete per week">?</span></label>
                             <input type="number" id="goalWeeklyInterviews" min="0" placeholder="e.g., 2">
                         </div>
                     </div>
@@ -1413,24 +1468,24 @@
             <form onsubmit="saveNewRole(event)">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Company *</label>
+                        <label>Company * <span class="help-tooltip" data-tooltip="Name of the company you're applying to">?</span></label>
                         <input type="text" id="newCompany" required>
                     </div>
                     <div class="form-group">
-                        <label>Title *</label>
+                        <label>Title * <span class="help-tooltip" data-tooltip="Job title or position name">?</span></label>
                         <input type="text" id="newTitle" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Salary</label>
+                    <label>Salary <span class="help-tooltip" data-tooltip="Expected salary range for this role">?</span></label>
                     <input type="text" id="newSalary" placeholder="e.g., $120k-$150k">
                 </div>
                 <div class="form-group">
-                    <label>Job Description</label>
+                    <label>Job Description <span class="help-tooltip" data-tooltip="Paste the full job description or URL to job posting">?</span></label>
                     <textarea id="newJobDescription" placeholder="Paste job description or URL here..." style="min-height: 100px;"></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Resume Version Submitted</label>
+                    <label>Resume Version Submitted <span class="help-tooltip" data-tooltip="Track which version of your resume you submitted">?</span></label>
                     <div style="display: flex; gap: 8px;">
                         <input type="text" id="newResumeVersion" placeholder="e.g., Software Engineer v2.1" style="flex: 1;">
                         <input type="file" id="newResumeFile" accept=".pdf,.doc,.docx" style="display: none;" onchange="handleResumeUpload('new', this)">
@@ -1440,7 +1495,7 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Source *</label>
+                        <label>Source * <span class="help-tooltip" data-tooltip="How you found or were contacted about this role">?</span></label>
                         <select id="newSource" required>
                             <option value="REFERRAL">Referral</option>
                             <option value="RECRUITER">Recruiter</option>
@@ -1450,7 +1505,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Phase</label>
+                        <label>Phase <span class="help-tooltip" data-tooltip="Current status of this application">?</span></label>
                         <select id="newPhase">
                             <option value="INTERESTED" selected>Interested</option>
                             <option value="APPLIED">Applied</option>
@@ -1462,11 +1517,11 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label># of Interviews</label>
+                        <label># of Interviews <span class="help-tooltip" data-tooltip="Total number of interview rounds completed">?</span></label>
                         <input type="number" id="newInterviewCount" min="0" placeholder="0">
                     </div>
                     <div class="form-group">
-                        <label>Days Active @ Apply</label>
+                        <label>Days Active @ Apply <span class="help-tooltip" data-tooltip="How many days the job was posted when you applied">?</span></label>
                         <input type="number" id="newDaysActive" min="0" placeholder="Days role was posted">
                     </div>
                 </div>
@@ -1493,22 +1548,22 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Primary Contact</label>
+                    <label>Primary Contact <span class="help-tooltip" data-tooltip="Main person you're communicating with (recruiter, hiring manager, etc)">?</span></label>
                     <input type="text" id="newContact" placeholder="e.g., Jane Smith, Hiring Manager">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Email</label>
+                        <label>Email <span class="help-tooltip" data-tooltip="Contact's email address">?</span></label>
                         <input type="email" id="newEmail" placeholder="contact@company.com">
                     </div>
                     <div class="form-group">
-                        <label>Phone</label>
+                        <label>Phone <span class="help-tooltip" data-tooltip="Contact's phone number">?</span></label>
                         <input type="tel" id="newPhone" placeholder="(555) 123-4567">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Next Action</label>
+                        <label>Next Action <span class="help-tooltip" data-tooltip="What you need to do next for this role">?</span></label>
                         <input type="text" id="newNextAction" list="nextActionSuggestions" placeholder="e.g., Send follow-up email">
                         <datalist id="nextActionSuggestions">
                             <option value="Send follow-up email">
@@ -1523,7 +1578,7 @@
                         </datalist>
                     </div>
                     <div class="form-group">
-                        <label>Follow-up Date</label>
+                        <label>Follow-up Date <span class="help-tooltip" data-tooltip="When you plan to follow up or take next action">?</span></label>
                         <input type="date" id="newFollowUpDate">
                     </div>
                 </div>
@@ -1553,7 +1608,7 @@
             </div>
             <form onsubmit="saveInteraction(event)">
                 <div class="form-group">
-                    <label>Type *</label>
+                    <label>Type * <span class="help-tooltip" data-tooltip="What kind of interaction happened with this role">?</span></label>
                     <select id="interactionType" required>
                         <option value="CONVERSATION">Conversation</option>
                         <option value="INTRO_REQUEST">Intro Request</option>
@@ -1566,11 +1621,11 @@
                     </select>
                 </div>
                 <div class="form-group" id="interviewDateGroup" style="display:none;">
-                    <label>Interview Date & Time</label>
+                    <label>Interview Date & Time <span class="help-tooltip" data-tooltip="When your interview is scheduled">?</span></label>
                     <input type="datetime-local" id="interviewDate">
                 </div>
                 <div class="form-group">
-                    <label>Notes (optional)</label>
+                    <label>Notes (optional) <span class="help-tooltip" data-tooltip="Any details about this interaction you want to remember">?</span></label>
                     <textarea id="interactionNotes" placeholder="Add any relevant details..."></textarea>
                 </div>
                 <div class="action-buttons">
@@ -1693,11 +1748,11 @@
             </div>
             <form onsubmit="saveNewCommonAnswer(event)">
                 <div class="form-group">
-                    <label>Question *</label>
+                    <label>Question * <span class="help-tooltip" data-tooltip="Common application or interview question you get asked">?</span></label>
                     <textarea id="newCAQuestion" required placeholder="e.g., Tell me about yourself" style="min-height: 80px;"></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Your Answer *</label>
+                    <label>Your Answer * <span class="help-tooltip" data-tooltip="Your prepared response to reference during applications">?</span></label>
                     <textarea id="newCAAnswer" required placeholder="Your prepared answer..." style="min-height: 150px;"></textarea>
                 </div>
                 <div class="action-buttons">
@@ -1717,11 +1772,11 @@
             </div>
             <form onsubmit="updateCommonAnswer(event)">
                 <div class="form-group">
-                    <label>Question *</label>
+                    <label>Question * <span class="help-tooltip" data-tooltip="Common application or interview question you get asked">?</span></label>
                     <textarea id="editCAQuestion" required style="min-height: 80px;"></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Your Answer *</label>
+                    <label>Your Answer * <span class="help-tooltip" data-tooltip="Your prepared response to reference during applications">?</span></label>
                     <textarea id="editCAAnswer" required style="min-height: 150px;"></textarea>
                 </div>
                 <div class="action-buttons">
