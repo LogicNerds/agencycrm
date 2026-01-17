@@ -1320,6 +1320,42 @@
                     <label>Salary</label>
                     <input type="text" id="newSalary" placeholder="e.g., $120k-$150k">
                 </div>
+                <div class="form-group">
+                    <label>Job Description</label>
+                    <textarea id="newJobDescription" placeholder="Paste job description or URL here..." style="min-height: 100px;"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Source *</label>
+                        <select id="newSource" required>
+                            <option value="REFERRAL">Referral</option>
+                            <option value="RECRUITER">Recruiter</option>
+                            <option value="COLD">Cold Apply</option>
+                            <option value="INBOUND">Inbound</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Phase</label>
+                        <select id="newPhase">
+                            <option value="INTERESTED" selected>Interested</option>
+                            <option value="APPLIED">Applied</option>
+                            <option value="IN_CONVERSATION">In Conversation</option>
+                            <option value="INTERVIEWING">Interviewing</option>
+                            <option value="WAITING">Waiting</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label># of Interviews</label>
+                        <input type="number" id="newInterviewCount" min="0" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Days Active @ Apply</label>
+                        <input type="number" id="newDaysActive" min="0" placeholder="Days role was posted">
+                    </div>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Source *</label>
@@ -1359,7 +1395,18 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Next Action</label>
-                        <input type="text" id="newNextAction" placeholder="e.g., Send follow-up email">
+                        <input type="text" id="newNextAction" list="nextActionSuggestions" placeholder="e.g., Send follow-up email">
+                        <datalist id="nextActionSuggestions">
+                            <option value="Send follow-up email">
+                            <option value="Follow up on LinkedIn">
+                            <option value="Prepare for interview">
+                            <option value="Send thank you note">
+                            <option value="Check application status">
+                            <option value="Schedule phone screen">
+                            <option value="Research company">
+                            <option value="Update resume">
+                            <option value="Request introduction">
+                        </datalist>
                     </div>
                     <div class="form-group">
                         <label>Follow-up Date</label>
@@ -2094,11 +2141,14 @@
             document.getElementById('newCompany').value = '';
             document.getElementById('newTitle').value = '';
             document.getElementById('newSalary').value = '';
+            document.getElementById('newJobDescription').value = '';
             document.getElementById('newSource').value = 'REFERRAL';
             document.getElementById('newPhase').value = 'INTERESTED';
             document.getElementById('newContact').value = '';
             document.getElementById('newEmail').value = '';
             document.getElementById('newPhone').value = '';
+            document.getElementById('newInterviewCount').value = '';
+            document.getElementById('newDaysActive').value = '';
             document.getElementById('newNextAction').value = '';
             document.getElementById('newFollowUpDate').value = '';
             openModal('newRoleModal');
@@ -2112,11 +2162,14 @@
                 company: document.getElementById('newCompany').value,
                 title: document.getElementById('newTitle').value,
                 salary: document.getElementById('newSalary').value,
+                jobDescription: document.getElementById('newJobDescription').value,
                 source: document.getElementById('newSource').value,
                 phase: document.getElementById('newPhase').value,
                 primaryContact: document.getElementById('newContact').value,
                 email: document.getElementById('newEmail').value,
                 phone: document.getElementById('newPhone').value,
+                interviewCount: parseInt(document.getElementById('newInterviewCount').value) || 0,
+                daysActiveAtApply: parseInt(document.getElementById('newDaysActive').value) || null,
                 nextAction: document.getElementById('newNextAction').value,
                 followUpDate: document.getElementById('newFollowUpDate').value,
                 createdAt: new Date().toISOString(),
@@ -2150,11 +2203,34 @@
                         <input type="text" id="editSalary" value="${role.salary || ''}" onchange="updateRoleField('${roleId}', 'salary', this.value)" placeholder="e.g., $120k-$150k">
                     </div>
                     <div class="form-group">
-                        <label>Phase</label>
-                        <select id="editPhase" onchange="updateRolePhase('${roleId}', this.value)">
-                            ${['INTERESTED', 'APPLIED', 'IN_CONVERSATION', 'INTERVIEWING', 'WAITING', 'CLOSED_NO', 'CLOSED_OFFER']
-                                .map(p => `<option value="${p}" ${role.phase === p ? 'selected' : ''}>${formatPhase(p)}</option>`).join('')}
-                        </select>
+                        <label>Job Description</label>
+                        <textarea id="editJobDescription" onchange="updateRoleField('${roleId}', 'jobDescription', this.value)" placeholder="Job description or URL..." style="min-height: 100px;">${role.jobDescription || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Source</label>
+                            <select id="editSource" onchange="updateRoleField('${roleId}', 'source', this.value)">
+                                ${['REFERRAL', 'RECRUITER', 'COLD', 'INBOUND', 'OTHER']
+                                    .map(s => `<option value="${s}" ${role.source === s ? 'selected' : ''}>${formatSource(s)}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Phase</label>
+                            <select id="editPhase" onchange="updateRolePhase('${roleId}', this.value)">
+                                ${['INTERESTED', 'APPLIED', 'IN_CONVERSATION', 'INTERVIEWING', 'WAITING', 'CLOSED_NO', 'CLOSED_OFFER']
+                                    .map(p => `<option value="${p}" ${role.phase === p ? 'selected' : ''}>${formatPhase(p)}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label># of Interviews</label>
+                            <input type="number" id="editInterviewCount" value="${role.interviewCount || 0}" onchange="updateRoleField('${roleId}', 'interviewCount', parseInt(this.value) || 0)" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Days Active @ Apply</label>
+                            <input type="number" id="editDaysActive" value="${role.daysActiveAtApply || ''}" onchange="updateRoleField('${roleId}', 'daysActiveAtApply', parseInt(this.value) || null)" min="0" placeholder="Days posted">
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Primary Contact</label>
@@ -2179,7 +2255,18 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>Next Action</label>
-                            <input type="text" id="editNextAction" value="${role.nextAction || ''}" onchange="updateRoleField('${roleId}', 'nextAction', this.value)">
+                            <input type="text" id="editNextAction" list="editNextActionSuggestions" value="${role.nextAction || ''}" onchange="updateRoleField('${roleId}', 'nextAction', this.value)">
+                            <datalist id="editNextActionSuggestions">
+                                <option value="Send follow-up email">
+                                <option value="Follow up on LinkedIn">
+                                <option value="Prepare for interview">
+                                <option value="Send thank you note">
+                                <option value="Check application status">
+                                <option value="Schedule phone screen">
+                                <option value="Research company">
+                                <option value="Update resume">
+                                <option value="Request introduction">
+                            </datalist>
                         </div>
                         <div class="form-group">
                             <label>Follow-up Date</label>
@@ -2187,7 +2274,6 @@
                         </div>
                     </div>
                     <div style="color: var(--text-secondary); font-size: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
-                        <strong>Source:</strong> ${formatSource(role.source)} · 
                         <strong>Created:</strong> ${formatDate(role.createdAt)}
                     </div>
                 </div>
@@ -2341,8 +2427,11 @@
                 'Company',
                 'Title',
                 'Salary',
+                'Job Description',
                 'Source',
                 'Phase',
+                '# of Interviews',
+                'Days Active @ Apply',
                 'Primary Contact',
                 'Email',
                 'Phone',
@@ -2367,8 +2456,11 @@
                         escapeCsv(role.company),
                         escapeCsv(role.title),
                         escapeCsv(role.salary || ''),
+                        escapeCsv(role.jobDescription || ''),
                         role.source,
                         role.phase,
+                        role.interviewCount || 0,
+                        role.daysActiveAtApply || '',
                         escapeCsv(role.primaryContact || ''),
                         escapeCsv(role.email || ''),
                         escapeCsv(role.phone || ''),
@@ -2389,8 +2481,11 @@
                             escapeCsv(role.company),
                             escapeCsv(role.title),
                             escapeCsv(role.salary || ''),
+                            escapeCsv(role.jobDescription || ''),
                             role.source,
                             role.phase,
+                            role.interviewCount || 0,
+                            role.daysActiveAtApply || '',
                             escapeCsv(role.primaryContact || ''),
                             escapeCsv(role.email || ''),
                             escapeCsv(role.phone || ''),
