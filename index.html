@@ -2079,6 +2079,18 @@
             return 'GREEN';
         }
 
+        function calculateCurrentDaysActive(role) {
+            if (!role.daysActiveAtApply || role.phase === 'CLOSED_NO' || role.phase === 'CLOSED_OFFER') {
+                return null;
+            }
+            
+            const createdDate = new Date(role.createdAt);
+            const today = new Date();
+            const daysSinceCreation = Math.floor((today - createdDate) / (1000 * 60 * 60 * 24));
+            
+            return role.daysActiveAtApply + daysSinceCreation;
+        }
+
         function getLastActivityDate(role) {
             const roleInteractions = DB.interactions.filter(i => i.roleId === role.id);
             if (roleInteractions.length === 0) return new Date(role.createdAt);
@@ -2531,6 +2543,7 @@
                         <div class="form-group">
                             <label>Days Active @ Apply <span class="help-tooltip" data-tooltip="How many days the job was posted when you applied">?</span></label>
                             <input type="number" id="editDaysActive" value="${role.daysActiveAtApply || ''}" onchange="updateRoleField('${roleId}', 'daysActiveAtApply', parseInt(this.value) || null)" min="0" placeholder="Days posted">
+                            ${calculateCurrentDaysActive(role) ? `<div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Currently: ${calculateCurrentDaysActive(role)} days active</div>` : ''}
                         </div>
                     </div>
                     <div class="form-group">
