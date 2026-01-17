@@ -1004,8 +1004,7 @@
             content: attr(data-tooltip);
             position: absolute;
             bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 0;
             margin-bottom: 8px;
             padding: 8px 12px;
             background: var(--text-primary);
@@ -1023,8 +1022,7 @@
             content: '';
             position: absolute;
             bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 8px;
             margin-bottom: 2px;
             border: 6px solid transparent;
             border-top-color: var(--text-primary);
@@ -2493,15 +2491,15 @@
                 
                 <div style="margin-bottom: 24px;">
                     <div class="form-group">
-                        <label>Salary</label>
+                        <label>Salary <span class="help-tooltip" data-tooltip="Expected salary range for this role">?</span></label>
                         <input type="text" id="editSalary" value="${role.salary || ''}" onchange="updateRoleField('${roleId}', 'salary', this.value)" placeholder="e.g., $120k-$150k">
                     </div>
                     <div class="form-group">
-                        <label>Job Description</label>
+                        <label>Job Description <span class="help-tooltip" data-tooltip="Paste the full job description or URL to job posting">?</span></label>
                         <textarea id="editJobDescription" onchange="updateRoleField('${roleId}', 'jobDescription', this.value)" placeholder="Job description or URL..." style="min-height: 100px;">${role.jobDescription || ''}</textarea>
                     </div>
                     <div class="form-group">
-                        <label>Resume Version Submitted</label>
+                        <label>Resume Version Submitted <span class="help-tooltip" data-tooltip="Track which version of your resume you submitted">?</span></label>
                         <div style="display: flex; gap: 8px;">
                             <input type="text" id="editResumeVersion" value="${role.resumeVersion || ''}" onchange="updateRoleField('${roleId}', 'resumeVersion', this.value)" placeholder="e.g., Software Engineer v2.1" style="flex: 1;">
                             <input type="file" id="editResumeFile-${roleId}" accept=".pdf,.doc,.docx" style="display: none;" onchange="handleResumeUpload('edit', this); updateRoleField('${roleId}', 'resumeVersion', document.getElementById('editResumeVersion').value);">
@@ -2511,14 +2509,14 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Source</label>
+                            <label>Source <span class="help-tooltip" data-tooltip="How you found or were contacted about this role">?</span></label>
                             <select id="editSource" onchange="updateRoleField('${roleId}', 'source', this.value)">
                                 ${['REFERRAL', 'RECRUITER', 'COLD', 'INBOUND', 'OTHER']
                                     .map(s => `<option value="${s}" ${role.source === s ? 'selected' : ''}>${formatSource(s)}</option>`).join('')}
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Phase</label>
+                            <label>Phase <span class="help-tooltip" data-tooltip="Current status of this application">?</span></label>
                             <select id="editPhase" onchange="updateRolePhase('${roleId}', this.value)">
                                 ${['INTERESTED', 'APPLIED', 'IN_CONVERSATION', 'INTERVIEWING', 'WAITING', 'CLOSED_NO', 'CLOSED_OFFER']
                                     .map(p => `<option value="${p}" ${role.phase === p ? 'selected' : ''}>${formatPhase(p)}</option>`).join('')}
@@ -2527,25 +2525,25 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label># of Interviews</label>
+                            <label># of Interviews <span class="help-tooltip" data-tooltip="Total number of interview rounds completed">?</span></label>
                             <input type="number" id="editInterviewCount" value="${role.interviewCount || 0}" onchange="updateRoleField('${roleId}', 'interviewCount', parseInt(this.value) || 0)" min="0">
                         </div>
                         <div class="form-group">
-                            <label>Days Active @ Apply</label>
+                            <label>Days Active @ Apply <span class="help-tooltip" data-tooltip="How many days the job was posted when you applied">?</span></label>
                             <input type="number" id="editDaysActive" value="${role.daysActiveAtApply || ''}" onchange="updateRoleField('${roleId}', 'daysActiveAtApply', parseInt(this.value) || null)" min="0" placeholder="Days posted">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Primary Contact</label>
+                        <label>Primary Contact <span class="help-tooltip" data-tooltip="Main person you're communicating with (recruiter, hiring manager, etc)">?</span></label>
                         <input type="text" id="editContact" value="${role.primaryContact || ''}" onchange="updateRoleField('${roleId}', 'primaryContact', this.value)">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Email</label>
+                            <label>Email <span class="help-tooltip" data-tooltip="Contact's email address">?</span></label>
                             <input type="email" id="editEmail" value="${role.email || ''}" onchange="updateRoleField('${roleId}', 'email', this.value)">
                         </div>
                         <div class="form-group">
-                            <label>Phone</label>
+                            <label>Phone <span class="help-tooltip" data-tooltip="Contact's phone number">?</span></label>
                             <input type="tel" id="editPhone" value="${role.phone || ''}" onchange="updateRoleField('${roleId}', 'phone', this.value)">
                         </div>
                     </div>
@@ -2557,7 +2555,7 @@
                     ` : ''}
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Next Action</label>
+                            <label>Next Action <span class="help-tooltip" data-tooltip="What you need to do next for this role">?</span></label>
                             <input type="text" id="editNextAction" list="editNextActionSuggestions" value="${role.nextAction || ''}" onchange="updateRoleField('${roleId}', 'nextAction', this.value)">
                             <datalist id="editNextActionSuggestions">
                                 <option value="Send follow-up email">
@@ -2572,7 +2570,7 @@
                             </datalist>
                         </div>
                         <div class="form-group">
-                            <label>Follow-up Date</label>
+                            <label>Follow-up Date <span class="help-tooltip" data-tooltip="When you plan to follow up or take next action">?</span></label>
                             <input type="date" id="editFollowUpDate" value="${role.followUpDate || ''}" onchange="updateRoleField('${roleId}', 'followUpDate', this.value)">
                         </div>
                     </div>
