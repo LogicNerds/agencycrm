@@ -1140,6 +1140,7 @@
                     <button class="nav-tab" onclick="showPage('roles')">Roles</button>
                     <button class="nav-tab" onclick="showPage('weekly')">Weekly Stats</button>
                     <button class="nav-tab" onclick="showPage('settings')">Settings</button>
+                    <button class="nav-tab" onclick="showPage('tools')">Tools</button>
                     <button class="nav-tab" onclick="showPage('feed')">Feed</button>
                 </nav>
                 <div class="user-menu">
@@ -1320,6 +1321,16 @@
                 </div>
             </div>
 
+            <!-- Tools -->
+            <div id="tools" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Tools</h1>
+                    <button class="btn" onclick="openNewCommonAnswerModal()">+ New Common Answer</button>
+                </div>
+
+                <div id="commonAnswersList"></div>
+            </div>
+
             <!-- Feed -->
             <div id="feed" class="page">
                 <div class="page-header">
@@ -1417,6 +1428,15 @@
                 <div class="form-group">
                     <label>Job Description</label>
                     <textarea id="newJobDescription" placeholder="Paste job description or URL here..." style="min-height: 100px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Resume Version Submitted</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="newResumeVersion" placeholder="e.g., Software Engineer v2.1" style="flex: 1;">
+                        <input type="file" id="newResumeFile" accept=".pdf,.doc,.docx" style="display: none;" onchange="handleResumeUpload('new', this)">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('newResumeFile').click()">Upload</button>
+                    </div>
+                    <div id="newResumeFileName" style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;"></div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -1664,6 +1684,55 @@
         </div>
     </div>
 
+    <!-- New Common Answer Modal -->
+    <div id="newCommonAnswerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">New Common Answer</h3>
+                <button class="close-btn" onclick="closeModal('newCommonAnswerModal')">&times;</button>
+            </div>
+            <form onsubmit="saveNewCommonAnswer(event)">
+                <div class="form-group">
+                    <label>Question *</label>
+                    <textarea id="newCAQuestion" required placeholder="e.g., Tell me about yourself" style="min-height: 80px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Your Answer *</label>
+                    <textarea id="newCAAnswer" required placeholder="Your prepared answer..." style="min-height: 150px;"></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newCommonAnswerModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Common Answer Modal -->
+    <div id="editCommonAnswerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Common Answer</h3>
+                <button class="close-btn" onclick="closeModal('editCommonAnswerModal')">&times;</button>
+            </div>
+            <form onsubmit="updateCommonAnswer(event)">
+                <div class="form-group">
+                    <label>Question *</label>
+                    <textarea id="editCAQuestion" required style="min-height: 80px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Your Answer *</label>
+                    <textarea id="editCAAnswer" required style="min-height: 150px;"></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">Update</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteCommonAnswer()">Delete</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editCommonAnswerModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -1697,9 +1766,11 @@
                 weeklyApplications: null,
                 weeklyInteractions: null,
                 weeklyInterviews: null
-            }
+            },
+            commonAnswers: []
         };
         let currentRoleId = null;
+        let currentCommonAnswerId = null;
         let userProfile = null;
         let userConnections = [];
         let pendingRequests = [];
@@ -2286,6 +2357,7 @@
             if (pageId === 'roles') filterRoles();
             if (pageId === 'weekly') renderWeeklyReport();
             if (pageId === 'settings') loadGoals();
+            if (pageId === 'tools') loadCommonAnswers();
             if (pageId === 'feed') {
                 loadFeed();
                 updateCommunityCount();
@@ -2306,6 +2378,8 @@
             document.getElementById('newTitle').value = '';
             document.getElementById('newSalary').value = '';
             document.getElementById('newJobDescription').value = '';
+            document.getElementById('newResumeVersion').value = '';
+            document.getElementById('newResumeFileName').textContent = '';
             document.getElementById('newSource').value = 'REFERRAL';
             document.getElementById('newPhase').value = 'INTERESTED';
             document.getElementById('newContact').value = '';
@@ -2327,6 +2401,7 @@
                 title: document.getElementById('newTitle').value,
                 salary: document.getElementById('newSalary').value,
                 jobDescription: document.getElementById('newJobDescription').value,
+                resumeVersion: document.getElementById('newResumeVersion').value,
                 source: document.getElementById('newSource').value,
                 phase: document.getElementById('newPhase').value,
                 primaryContact: document.getElementById('newContact').value,
@@ -2369,6 +2444,15 @@
                     <div class="form-group">
                         <label>Job Description</label>
                         <textarea id="editJobDescription" onchange="updateRoleField('${roleId}', 'jobDescription', this.value)" placeholder="Job description or URL..." style="min-height: 100px;">${role.jobDescription || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Resume Version Submitted</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="editResumeVersion" value="${role.resumeVersion || ''}" onchange="updateRoleField('${roleId}', 'resumeVersion', this.value)" placeholder="e.g., Software Engineer v2.1" style="flex: 1;">
+                            <input type="file" id="editResumeFile-${roleId}" accept=".pdf,.doc,.docx" style="display: none;" onchange="handleResumeUpload('edit', this); updateRoleField('${roleId}', 'resumeVersion', document.getElementById('editResumeVersion').value);">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('editResumeFile-${roleId}').click()">Upload</button>
+                        </div>
+                        <div id="editResumeFileName" style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">${role.resumeVersion ? '📄 ' + role.resumeVersion : ''}</div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -3115,6 +3199,122 @@
             if (input) {
                 input.focus();
             }
+        }
+
+        // ===========================
+        // COMMON ANSWERS FUNCTIONS
+        // ===========================
+
+        async function loadCommonAnswers() {
+            if (!currentUser) return;
+            
+            const snapshot = await db.collection('users').doc(currentUser.uid)
+                .collection('commonAnswers').orderBy('createdAt', 'desc').get();
+            
+            DB.commonAnswers = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            
+            renderCommonAnswers();
+        }
+
+        function renderCommonAnswers() {
+            const list = document.getElementById('commonAnswersList');
+            if (!list) return;
+            
+            if (DB.commonAnswers.length === 0) {
+                list.innerHTML = '<div class="empty-state">No common answers yet. Click "+ New Common Answer" to create one.</div>';
+                return;
+            }
+            
+            list.innerHTML = DB.commonAnswers.map(ca => `
+                <div class="role-card" onclick="openEditCommonAnswerModal('${ca.id}')" style="cursor: pointer;">
+                    <div style="font-weight: 600; font-size: 15px; margin-bottom: 8px;">${escapeHtml(ca.question)}</div>
+                    <div style="color: var(--text-secondary); font-size: 13px; line-height: 1.5;">${escapeHtml(ca.answer.substring(0, 150))}${ca.answer.length > 150 ? '...' : ''}</div>
+                    <div style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">Created: ${formatDate(ca.createdAt)}</div>
+                </div>
+            `).join('');
+        }
+
+        function openNewCommonAnswerModal() {
+            document.getElementById('newCAQuestion').value = '';
+            document.getElementById('newCAAnswer').value = '';
+            openModal('newCommonAnswerModal');
+        }
+
+        async function saveNewCommonAnswer(e) {
+            e.preventDefault();
+            
+            const ca = {
+                question: document.getElementById('newCAQuestion').value,
+                answer: document.getElementById('newCAAnswer').value,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            await db.collection('users').doc(currentUser.uid)
+                .collection('commonAnswers').add(ca);
+            
+            await loadCommonAnswers();
+            closeModal('newCommonAnswerModal');
+        }
+
+        function openEditCommonAnswerModal(caId) {
+            const ca = DB.commonAnswers.find(c => c.id === caId);
+            if (!ca) return;
+            
+            currentCommonAnswerId = caId;
+            document.getElementById('editCAQuestion').value = ca.question;
+            document.getElementById('editCAAnswer').value = ca.answer;
+            openModal('editCommonAnswerModal');
+        }
+
+        async function updateCommonAnswer(e) {
+            e.preventDefault();
+            
+            if (!currentCommonAnswerId) return;
+            
+            await db.collection('users').doc(currentUser.uid)
+                .collection('commonAnswers').doc(currentCommonAnswerId).update({
+                    question: document.getElementById('editCAQuestion').value,
+                    answer: document.getElementById('editCAAnswer').value,
+                    updatedAt: new Date().toISOString()
+                });
+            
+            await loadCommonAnswers();
+            closeModal('editCommonAnswerModal');
+            currentCommonAnswerId = null;
+        }
+
+        async function deleteCommonAnswer() {
+            if (!currentCommonAnswerId) return;
+            if (!confirm('Delete this common answer?')) return;
+            
+            await db.collection('users').doc(currentUser.uid)
+                .collection('commonAnswers').doc(currentCommonAnswerId).delete();
+            
+            await loadCommonAnswers();
+            closeModal('editCommonAnswerModal');
+            currentCommonAnswerId = null;
+        }
+
+        // ===========================
+        // RESUME UPLOAD FUNCTIONS
+        // ===========================
+
+        function handleResumeUpload(context, input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const fileNameDisplay = document.getElementById(`${context}ResumeFileName`);
+            if (fileNameDisplay) {
+                fileNameDisplay.textContent = `📄 ${file.name}`;
+            }
+            
+            // Store file reference (in real scenario, you'd upload to storage)
+            // For now, just store the filename
+            document.getElementById(`${context}ResumeVersion`).value = file.name;
         }
 
         async function loadFeed() {
