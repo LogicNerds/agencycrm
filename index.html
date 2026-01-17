@@ -1199,7 +1199,10 @@
                 </div>
 
 <div class="settings-card">
-                    <div class="settings-title">Your Profile</div>
+                    <div class="settings-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Your Profile</span>
+                        <button class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;" onclick="openEditProfileModal()">Edit Profile</button>
+                    </div>
                     <div class="profile-card">
                         <div class="profile-display">
                             <span class="profile-emoji-large" id="profileEmojiDisplay"></span>
@@ -1245,6 +1248,13 @@
                 <div class="page-header">
                     <h1 class="page-title">Community Feed</h1>
                     <button class="btn" onclick="openModal('inviteModal')">+ Invite</button>
+                </div>
+
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">Your community is</div>
+                    <div style="font-size: 32px; font-weight: 700; color: var(--blue); cursor: pointer;" onclick="openModal('communityModal')" id="communityCount">
+                        0 deep
+                    </div>
                 </div>
 
                 <div class="post-composer">
@@ -1537,6 +1547,47 @@
                 <button class="btn" onclick="sendConnectionRequest(document.getElementById('inviteShareCode').value)">Send Request</button>
                 <button class="btn btn-secondary" onclick="closeModal('inviteModal')">Cancel</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Community Modal -->
+    <div id="communityModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Your Community</h3>
+                <button class="close-btn" onclick="closeModal('communityModal')">&times;</button>
+            </div>
+            <div id="communityList"></div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Profile</h3>
+                <button class="close-btn" onclick="closeModal('editProfileModal')">&times;</button>
+            </div>
+            <form onsubmit="event.preventDefault(); updateUserProfile(document.getElementById('editNickname').value, document.getElementById('editEmoji').value, document.getElementById('editRole').value);">
+                <div class="form-group">
+                    <label>Nickname *</label>
+                    <input type="text" id="editNickname" required maxlength="30">
+                </div>
+                <div class="form-group">
+                    <label>Choose Your Emoji *</label>
+                    <select id="editEmoji" required style="font-size: 20px;">
+                        <option value="">Select an emoji...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Looking For *</label>
+                    <input type="text" id="editRole" required placeholder="e.g., Software Engineer">
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editProfileModal')">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -2126,11 +2177,18 @@
             if (pageId === 'roles') filterRoles();
             if (pageId === 'weekly') renderWeeklyReport();
             if (pageId === 'settings') loadGoals();
-            if (pageId === 'feed') loadFeed();
+            if (pageId === 'feed') {
+                loadFeed();
+                updateCommunityCount();
+            }
         }
 
         function openModal(modalId) {
-            document.getElementById(modalId).classList.add('active');
+            if (modalId === 'communityModal') {
+                showCommunityList();
+            } else {
+                document.getElementById(modalId).classList.add('active');
+            }
         }
 
         function closeModal(modalId) {
@@ -2621,6 +2679,140 @@
             });
             
             updateNotificationBadge();
+            updateCommunityCount();
+        }
+
+        function updateCommunityCount() {
+            const count = userConnections.length + 1; // +1 for yourself
+            const countEl = document.getElementById('communityCount');
+            if (countEl) {
+                countEl.textContent = `${count} deep`;
+            }
+        }
+
+        async function showCommunityList() {
+            if (!currentUser || !userProfile) return;
+            
+            const communityHTML = [];
+            
+            // Add yourself first
+            communityHTML.push(`
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 32px;">${userProfile.emoji}</span>
+                        <div>
+                            <div style="font-weight: 600;">${userProfile.nickname} (You)</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">Looking for: ${userProfile.desiredRole}</div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            
+            // Add connections
+            for (const userId of userConnections) {
+                const profileDoc = await db.collection('profiles').doc(userId).get();
+                if (profileDoc.exists) {
+                    const profile = profileDoc.data();
+                    communityHTML.push(`
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 32px;">${profile.emoji}</span>
+                                <div>
+                                    <div style="font-weight: 600;">${profile.nickname}</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">Looking for: ${profile.desiredRole}</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-danger" style="font-size: 12px; padding: 6px 12px;" onclick="severConnection('${userId}')">Sever</button>
+                        </div>
+                    `);
+                }
+            }
+            
+            document.getElementById('communityList').innerHTML = communityHTML.join('') || `
+                <div style="padding: 40px; text-align: center; color: var(--text-secondary);">
+                    No connections yet
+                </div>
+            `;
+            
+            openModal('communityModal');
+        }
+
+        async function severConnection(userId) {
+            if (!confirm('Are you sure you want to sever this connection? This cannot be undone.')) return;
+            
+            try {
+                // Find and delete the connection (could be in either direction)
+                const sentSnapshot = await db.collection('connections')
+                    .where('fromUserId', '==', currentUser.uid)
+                    .where('toUserId', '==', userId)
+                    .where('status', '==', 'approved')
+                    .get();
+                
+                const receivedSnapshot = await db.collection('connections')
+                    .where('fromUserId', '==', userId)
+                    .where('toUserId', '==', currentUser.uid)
+                    .where('status', '==', 'approved')
+                    .get();
+                
+                sentSnapshot.docs.forEach(doc => doc.ref.delete());
+                receivedSnapshot.docs.forEach(doc => doc.ref.delete());
+                
+                await loadConnections();
+                closeModal('communityModal');
+                await loadFeed(); // Refresh feed since connections changed
+                alert('Connection severed');
+            } catch (error) {
+                console.error('Error severing connection:', error);
+                alert('Failed to sever connection');
+            }
+        }
+
+        function openEditProfileModal() {
+            if (!userProfile) {
+                alert('Please set up your profile first');
+                return;
+            }
+            
+            document.getElementById('editNickname').value = userProfile.nickname;
+            document.getElementById('editEmoji').value = userProfile.emoji;
+            document.getElementById('editRole').value = userProfile.desiredRole;
+            
+            // Populate emoji dropdown if not already done
+            const select = document.getElementById('editEmoji');
+            if (select.children.length <= 1) {
+                TOP_EMOJIS.forEach(emoji => {
+                    const option = document.createElement('option');
+                    option.value = emoji;
+                    option.textContent = emoji;
+                    option.style.fontSize = '20px';
+                    select.appendChild(option);
+                });
+            }
+            
+            openModal('editProfileModal');
+        }
+
+        async function updateUserProfile(nickname, emoji, desiredRole) {
+            if (!currentUser || !userProfile) return;
+            
+            try {
+                await db.collection('profiles').doc(currentUser.uid).update({
+                    nickname: nickname,
+                    emoji: emoji,
+                    desiredRole: desiredRole
+                });
+                
+                userProfile.nickname = nickname;
+                userProfile.emoji = emoji;
+                userProfile.desiredRole = desiredRole;
+                
+                closeModal('editProfileModal');
+                loadGoals(); // Refresh profile display in settings
+                alert('Profile updated!');
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Failed to update profile');
+            }
         }
 
         async function sendConnectionRequest(shareCode) {
